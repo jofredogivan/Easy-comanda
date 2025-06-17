@@ -6,156 +6,275 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
         body {
-            background-color: #1c1c1c;
-            color: #f1f1f1;
-            /* Adicionado para centralizar o conteúdo, assim como em outras páginas */
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            padding: 1.5rem; /* Ajustado para consistência */
+            padding: 1rem;
         }
-        .form-container {
-            background-color: #2c2c2c;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-            margin-top: 30px;
-            width: 100%; /* Para que o max-width funcione */
-            max-width: 480px; /* Ajustado para consistência com clientes.html */
-        }
-        .form-control, .form-select {
-            background-color: #3c3c3c;
-            color: #fff;
-            border: 1px solid #555;
-        }
-        .form-control::placeholder {
-            color: #bbb;
-        }
-        h3 {
+        .app-title {
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #20c997; /* Cor dos Garçons */
+            font-size: 2rem;
             text-align: center;
-            color: #0d6efd;
-            margin-bottom: 20px;
-            /* Melhoria: Adicionado prefixos para user-select */
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
         }
-        .btn {
-            border-radius: 50px;
-            font-weight: 500;
+        .container-main {
+            background-color: #1f1f1f;
+            border-radius: 16px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 1rem;
         }
-        .btn-success {
-            background-color: #28a745;
-            border: none;
+        .form-label {
+            color: #e0e0e0;
         }
-        .btn-success:hover, .btn-success:focus {
-            background-color: #218838;
-            box-shadow: 0 6px 18px rgba(40, 167, 69, 0.6); /* Ajustado sombra para hover */
+        .form-control {
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: #e0e0e0;
         }
-        .btn-secondary {
-            background-color: #6c757d;
-            border: none;
+        .form-control:focus {
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+            border-color: #20c997;
+            box-shadow: 0 0 0 0.25rem rgba(32, 201, 151, 0.25);
         }
-        .btn-secondary:hover, .btn-secondary:focus {
-            background-color: #5a6268;
-            box-shadow: 0 6px 18px rgba(108, 117, 125, 0.6); /* Ajustado sombra para hover */
+        .btn-custom {
+            background-color: #20c997;
+            border-color: #20c997;
+            color: #121212; /* Texto escuro para contraste */
+            font-weight: 600;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .btn-custom:hover {
+            background-color: #1aa079;
+            border-color: #1aa079;
+            color: #121212;
+        }
+        .list-group-item {
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+            border: 1px solid #333;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+        .list-group-item:hover {
+            background-color: #3a3a3a;
+        }
+        .btn-danger-custom {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-danger-custom:hover {
+            background-color: #b02a37;
+            border-color: #b02a37;
+        }
+        .btn-back {
+            background-color: #444;
+            border-color: #444;
+            color: white;
+        }
+        .btn-back:hover {
+            background-color: #555;
+            border-color: #555;
+            color: white;
         }
     </style>
 </head>
-<body class="container">
+<body>
 
-    <script>
-        // Validação de login: redireciona se o usuário não estiver logado ou não for administrador
-        const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
-        if (!usuario || usuario.perfil !== 'administrador') {
-            alert('Acesso restrito apenas para administradores.');
-            window.location.href = 'index.html';
-        }
-    </script>
+    <h2 class="app-title">Cadastro de Garçons</h2>
 
-    <div class="form-container">
-        <h3>Cadastro de Garçons</h3>
+    <div class="container-main">
+        <form id="garcomForm">
+            <input type="hidden" id="garcomId" />
+            <div class="mb-3">
+                <label for="garcomNome" class="form-label">Nome do Garçom:</label>
+                <input type="text" class="form-control" id="garcomNome" required />
+            </div>
+            <div class="mb-3">
+                <label for="garcomUsuario" class="form-label">Usuário de Login:</label>
+                <input type="text" class="form-control" id="garcomUsuario" required />
+            </div>
+            <div class="mb-3">
+                <label for="garcomSenha" class="form-label">Senha de Login:</label>
+                <input type="password" class="form-control" id="garcomSenha" required />
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-custom btn-lg" id="btnSalvarGarcom">Cadastrar</button>
+            </div>
+        </form>
 
-        <div class="mb-3">
-            <label for="nome" class="form-label">Nome Completo</label>
-            <input type="text" id="nome" class="form-control" placeholder="Ex: João Silva" autocomplete="off" />
+        <hr class="border-secondary my-4">
+
+        <h4 class="mb-3">Garçons Cadastrados</h4>
+        <div id="garconsList" class="list-group mb-4">
+            <p class="text-center text-muted mt-3" id="noGarconsMessage">Nenhum garçom cadastrado.</p>
         </div>
 
-        <div class="mb-3">
-            <label for="usuario" class="form-label">Usuário de Login</label>
-            <input type="text" id="usuario" class="form-control" placeholder="Ex: joao" autocomplete="off" />
+        <div class="d-grid mt-4">
+            <button class="btn btn-back btn-lg" onclick="window.location.href='index.html'">Voltar ao Início</button>
         </div>
-
-        <div class="mb-3">
-            <label for="senha" class="form-label">Senha</label>
-            <input type="password" id="senha" class="form-control" placeholder="Senha para login" autocomplete="new-password" />
-        </div>
-
-        <button id="btnSalvar" class="btn btn-success w-100 mb-2">Salvar Garçom</button>
-        <a href="index.html" class="btn btn-secondary w-100">Voltar</a>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const inputNome = document.getElementById('nome');
-        const inputUsuario = document.getElementById('usuario');
-        const inputSenha = document.getElementById('senha');
-        const btnSalvar = document.getElementById('btnSalvar');
-
-        // Função para limpar os campos do formulário
-        function limparCampos() {
-            inputNome.value = '';
-            inputUsuario.value = '';
-            inputSenha.value = '';
-            inputNome.focus(); // Foca no primeiro campo após limpar
-        }
-
-        btnSalvar.addEventListener('click', () => {
-            const nome = inputNome.value.trim();
-            const usuarioLogin = inputUsuario.value.trim();
-            const senha = inputSenha.value.trim();
-
-            if (!nome || !usuarioLogin || !senha) {
-                alert('Preencha todos os campos.');
+        document.addEventListener('DOMContentLoaded', () => {
+            const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+            // Apenas administradores podem acessar esta página
+            if (!usuarioLogado || usuarioLogado.perfil !== 'administrador') {
+                alert('Você não tem permissão para acessar esta página.');
+                window.location.href = 'login.html';
                 return;
             }
 
-            let garcons = JSON.parse(localStorage.getItem('garcons')) || [];
+            const garcomForm = document.getElementById('garcomForm');
+            const garcomIdInput = document.getElementById('garcomId');
+            const garcomNomeInput = document.getElementById('garcomNome');
+            const garcomUsuarioInput = document.getElementById('garcomUsuario'); // Novo input
+            const garcomSenhaInput = document.getElementById('garcomSenha');   // Novo input
+            const btnSalvarGarcom = document.getElementById('btnSalvarGarcom');
+            const garconsList = document.getElementById('garconsList');
+            const noGarconsMessage = document.getElementById('noGarconsMessage');
 
-            // Adicionado: Verificação de duplicidade de usuário de login
-            // Inclui o admin padrão na verificação para evitar conflitos
-            const usuarioAdmin = { usuario: "admin" };
-            const todosUsuariosExistentes = [usuarioAdmin, ...garcons];
-
-            const usuarioJaExiste = todosUsuariosExistentes.some(u => u.usuario.toLowerCase() === usuarioLogin.toLowerCase());
-
-            if (usuarioJaExiste) {
-                alert('Este nome de usuário para login já existe. Por favor, escolha outro.');
-                inputUsuario.focus(); // Foca no campo de usuário para correção
-                return;
+            // --- Funções Auxiliares para LocalStorage ---
+            function getItems(key) {
+                return JSON.parse(localStorage.getItem(key)) || [];
             }
-            // Fim da verificação de duplicidade
 
-            const novoGarcom = { nome, usuario: usuarioLogin, senha, perfil: 'garcom' };
-            garcons.push(novoGarcom);
-            localStorage.setItem('garcons', JSON.stringify(garcons));
-
-            alert('Garçom cadastrado com sucesso!');
-            limparCampos(); // Limpa os campos após salvar
-            // Se quiser redirecionar para a index, use: window.location.href = 'index.html';
-            // Se quiser continuar na página para cadastrar mais, mantenha o limparCampos.
-            // Decidi manter na página para facilitar múltiplos cadastros, mas você pode mudar.
-        });
-
-        // Adicionado: Permite salvar ao pressionar Enter em qualquer campo
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                btnSalvar.click(); // Simula um clique no botão de salvar
+            function saveItems(key, data) {
+                localStorage.setItem(key, JSON.stringify(data));
             }
+
+            function generateUniqueId() {
+                return Date.now().toString() + Math.floor(Math.random() * 1000).toString();
+            }
+
+            // --- Gerenciamento de Garçons ---
+            function renderGarcons() {
+                const garcons = getItems('garcons');
+                garconsList.innerHTML = ''; // Limpa a lista existente
+
+                if (garcons.length === 0) {
+                    noGarconsMessage.classList.remove('d-none');
+                } else {
+                    noGarconsMessage.classList.add('d-none');
+                    garcons.forEach(garcom => {
+                        const listItem = document.createElement('div');
+                        listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                        listItem.innerHTML = `
+                            <span>${garcom.nome} (Usuário: ${garcom.usuario})</span>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-info text-dark me-2" data-id="${garcom.id}" data-action="edit">Editar</button>
+                                <button type="button" class="btn btn-sm btn-danger btn-danger-custom" data-id="${garcom.id}" data-action="delete">Excluir</button>
+                            </div>
+                        `;
+                        garconsList.appendChild(listItem);
+                    });
+                }
+            }
+
+            function saveGarcom(e) {
+                e.preventDefault();
+                const nome = garcomNomeInput.value.trim();
+                const usuario = garcomUsuarioInput.value.trim(); // Novo
+                const senha = garcomSenhaInput.value.trim();     // Novo
+
+                if (!nome || !usuario || !senha) { // Validação para os novos campos
+                    alert('Por favor, preencha todos os campos: Nome, Usuário e Senha.');
+                    return;
+                }
+
+                let garcons = getItems('garcons');
+                const id = garcomIdInput.value;
+
+                if (id) {
+                    // Editando garçom existente
+                    const index = garcons.findIndex(g => g.id === id);
+                    if (index > -1) {
+                        garcons[index].nome = nome;
+                        garcons[index].usuario = usuario; // Salva o novo usuário
+                        garcons[index].senha = senha;     // Salva a nova senha
+                        alert('Garçom atualizado com sucesso!');
+                    }
+                } else {
+                    // Adicionando novo garçom
+                    // Verifica se o nome de usuário já existe
+                    if (garcons.some(g => g.usuario === usuario)) {
+                        alert('Este nome de usuário já existe. Por favor, escolha outro.');
+                        return;
+                    }
+                    garcons.push({
+                        id: generateUniqueId(),
+                        nome: nome,
+                        usuario: usuario, // Salva o usuário
+                        senha: senha,     // Salva a senha
+                        perfil: "garcom"  // Define o perfil para "garcom"
+                    });
+                    alert('Garçom cadastrado com sucesso!');
+                }
+
+                saveItems('garcons', garcons);
+                garcomForm.reset(); // Limpa o formulário
+                garcomIdInput.value = ''; // Limpa o ID oculto
+                btnSalvarGarcom.textContent = 'Cadastrar'; // Volta o texto do botão
+                renderGarcons();
+            }
+
+            function editGarcom(id) {
+                const garcons = getItems('garcons');
+                const garcom = garcons.find(g => g.id === id);
+
+                if (garcom) {
+                    garcomIdInput.value = garcom.id;
+                    garcomNomeInput.value = garcom.nome;
+                    garcomUsuarioInput.value = garcom.usuario; // Preenche o campo de usuário
+                    garcomSenhaInput.value = garcom.senha;     // Preenche o campo de senha
+                    btnSalvarGarcom.textContent = 'Atualizar';
+                }
+            }
+
+            function deleteGarcom(id) {
+                if (confirm('Tem certeza que deseja excluir este garçom?')) {
+                    let garcons = getItems('garcons');
+                    garcons = garcons.filter(g => g.id !== id);
+                    saveItems('garcons', garcons);
+                    alert('Garçom excluído com sucesso!');
+                    renderGarcons();
+                    // Limpa o formulário caso o item excluído estivesse sendo editado
+                    garcomForm.reset();
+                    garcomIdInput.value = '';
+                    btnSalvarGarcom.textContent = 'Cadastrar';
+                }
+            }
+
+            // --- Event Listeners ---
+            garcomForm.addEventListener('submit', saveGarcom);
+
+            garconsList.addEventListener('click', (e) => {
+                const id = e.target.dataset.id;
+                const action = e.target.dataset.action;
+
+                if (action === 'edit') {
+                    editGarcom(id);
+                } else if (action === 'delete') {
+                    deleteGarcom(id);
+                }
+            });
+
+            // --- Inicialização ---
+            renderGarcons();
         });
     </script>
-
 </body>
 </html>
