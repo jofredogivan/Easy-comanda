@@ -217,7 +217,7 @@
                 console.log('Clientes carregados:', clientes);
                 clientes.forEach(cliente => {
                     const option = document.createElement('option');
-                    option.value = cliente.id; // Correto: o value deve ser o ID do cliente
+                    option.value = cliente.id;
                     option.textContent = cliente.nome;
                     clienteSelect.appendChild(option);
                 });
@@ -226,7 +226,7 @@
                 console.log('Garçons carregados:', garcons);
                 garcons.forEach(garcom => {
                     const option = document.createElement('option');
-                    option.value = garcom.id; // Correto: o value deve ser o ID do garçom
+                    option.value = garcom.id;
                     option.textContent = garcom.nome;
                     garcomSelect.appendChild(option);
                 });
@@ -238,9 +238,9 @@
                 }
                 produtos.forEach(produto => {
                     const option = document.createElement('option');
-                    option.value = produto.id; // Correto: o value deve ser o ID do produto
+                    option.value = produto.id;
                     option.textContent = `${produto.nome} (R$ ${produto.preco.toFixed(2).replace('.', ',')})`;
-                    option.setAttribute('data-preco', produto.preco); // Armazena o preço como data-atributo
+                    option.setAttribute('data-preco', produto.preco);
                     produtoSelect.appendChild(option);
                 });
             }
@@ -270,19 +270,17 @@
             function addItemToComanda() {
                 console.log("--- Tentativa de Adicionar Item ---");
                 
-                // PEGAR A OPÇÃO SELECIONADA DIRETAMENTE do <select>
                 const selectedOption = produtoSelect.options[produtoSelect.selectedIndex];
 
-                // Verificar se alguma opção válida foi selecionada (não a opção "Selecione um produto")
                 if (!selectedOption || selectedOption.value === "") {
                     console.log("Validação: Nenhuma opção de produto válida selecionada.");
                     alert('Selecione um produto válido.');
                     return;
                 }
 
-                const selectedProductId = selectedOption.value; // ID do produto
-                const selectedProductName = selectedOption.textContent.split('(')[0].trim(); // Nome do produto
-                const selectedProductPreco = parseFloat(selectedOption.getAttribute('data-preco')); // Preço do produto
+                const selectedProductId = selectedOption.value;
+                const selectedProductName = selectedOption.textContent.split('(')[0].trim();
+                const selectedProductPreco = parseFloat(selectedOption.getAttribute('data-preco'));
                 
                 const quantidade = parseInt(quantidadeInput.value);
 
@@ -298,7 +296,7 @@
                 }
                 
                 console.log("6. Produto válido encontrado a partir da seleção.");
-                const existingItemIndex = itens.findIndex(item => item.id == selectedProductId); // Comparar pelo ID
+                const existingItemIndex = itens.findIndex(item => item.id == selectedProductId);
 
                 if (existingItemIndex > -1) {
                     console.log("7. Item já existe, atualizando quantidade.");
@@ -306,15 +304,15 @@
                 } else {
                     console.log("7. Item novo, adicionando à lista.");
                     itens.push({
-                        id: selectedProductId, // Usar o ID da opção
-                        nome: selectedProductName, // Usar o nome da opção
-                        preco: selectedProductPreco, // Usar o preço da opção
+                        id: selectedProductId,
+                        nome: selectedProductName,
+                        preco: selectedProductPreco,
                         quantidade: quantidade
                     });
                 }
                 renderItensComanda();
-                produtoSelect.value = ''; // Limpa a seleção do produto
-                quantidadeInput.value = 1; // Reseta a quantidade para 1
+                produtoSelect.value = '';
+                quantidadeInput.value = 1;
                 console.log("8. Item adicionado/atualizado e renderizado.");
                 console.log("--- Fim da Tentativa de Adicionar Item ---");
             }
@@ -348,8 +346,8 @@
                         comandaStatusInput.value = currentComanda.status;
 
                         // Popula campos da comanda
-                        clienteSelect.value = currentComanda.clienteId || ''; // Usar clienteId
-                        garcomSelect.value = currentComanda.garcomId || '';   // Usar garcomId
+                        clienteSelect.value = currentComanda.clienteId || '';
+                        garcomSelect.value = currentComanda.garcomId || '';
                         itens = currentComanda.itens || [];
                         renderItensComanda();
 
@@ -357,7 +355,7 @@
                         if (currentComanda.status === 'Finalizada' || currentComanda.status === 'Paga') {
                             alert('Esta comanda já foi finalizada ou paga e não pode ser editada.');
                             comandaForm.querySelectorAll('input, select, button').forEach(el => {
-                                if (el.id !== 'btnVoltar') { // Mantém o botão de voltar habilitado
+                                if (el.id !== 'btnVoltar') {
                                     el.disabled = true;
                                 }
                             });
@@ -372,18 +370,33 @@
             }
 
             function saveComanda(status) {
+                // Adicionado: Log para verificar os valores dos selects antes de qualquer processamento
+                console.log("--- Iniciando saveComanda ---");
+                console.log("Valor de clienteSelect.value:", clienteSelect.value);
+                // Opcional: Adicionar verificação para `selectedIndex` antes de acessar `options` para evitar erro se não houver seleção
+                console.log("Texto de clienteSelect.options[clienteSelect.selectedIndex]?.textContent:", clienteSelect.selectedIndex !== -1 ? clienteSelect.options[clienteSelect.selectedIndex].textContent : 'Nenhum cliente selecionado');
+                console.log("Valor de garcomSelect.value:", garcomSelect.value);
+                console.log("Texto de garcomSelect.options[garcomSelect.selectedIndex]?.textContent:", garcomSelect.selectedIndex !== -1 ? garcomSelect.options[garcomSelect.selectedIndex].textContent : 'Nenhum garçom selecionado');
+
+
                 const clienteId = clienteSelect.value;
                 const garcomId = garcomSelect.value;
 
                 if (!clienteId || !garcomId || itens.length === 0) {
                     alert('Por favor, preencha o cliente, o garçom e adicione pelo menos um item.');
+                    console.error("Validação falhou: Cliente, garçom ou itens ausentes.");
                     return false;
                 }
 
                 const clientes = getItems('clientes');
-                const cliente = clientes.find(c => c.id == clienteId);
+                const cliente = clientes.find(c => c.id == clienteId); // Comparação solta `==` para string/number
                 const garcons = getItems('garcons');
-                const garcom = garcons.find(g => g.id == garcomId);
+                const garcom = garcons.find(g => g.id == garcomId); // Comparação solta `==` para string/number
+
+                // Adicionado: Logs para verificar se cliente e garçom foram encontrados
+                console.log("Cliente encontrado (objeto):", cliente);
+                console.log("Garçom encontrado (objeto):", garcom);
+
 
                 // Formatar a data para garantir consistência
                 const now = new Date();
@@ -392,16 +405,16 @@
                 const comandaData = {
                     id: comandaIdInput.value,
                     clienteId: clienteId,
-                    clienteNome: cliente ? cliente.nome : 'Cliente Desconhecido', // Pega o nome do objeto cliente
+                    clienteNome: cliente ? cliente.nome : 'Cliente Desconhecido (Falha na Busca)', // Pega o nome do objeto cliente
                     garcomId: garcomId,
-                    garcomNome: garcom ? garcom.nome : 'Garçom Desconhecido',     // Pega o nome do objeto garçom
+                    garcomNome: garcom ? garcom.nome : 'Garçom Desconhecido (Falha na Busca)',     // Pega o nome do objeto garçom
                     itens: itens,
                     total: parseFloat(totalComandaSpan.textContent.replace(',', '.')),
-                    data: currentComanda ? currentComanda.data : dataFormatada, // Mantém a data original se editando, ou usa a data atual para nova
+                    data: currentComanda ? currentComanda.data : dataFormatada,
                     status: status 
                 };
 
-                console.log('Comanda a ser salva:', comandaData); // DEBUG: Veja o objeto antes de salvar
+                console.log('Comanda a ser salva:', comandaData); // ESTE É O LOG CRÍTICO QUE PRECISO VER!
 
                 let comandas = getItems('comandas');
                 const existingIndex = comandas.findIndex(c => c.id === comandaData.id);
@@ -412,6 +425,7 @@
                     comandas.push(comandaData);
                 }
                 saveItems('comandas', comandas);
+                console.log("--- Fim de saveComanda ---");
                 return true;
             }
 
@@ -433,17 +447,15 @@
 
             btnVoltar.addEventListener('click', () => {
                 if (currentComanda && (currentComanda.status === 'Finalizada' || currentComanda.status === 'Paga')) {
-                    // Se já estiver finalizada/paga, apenas volta
                     window.location.href = 'index.html';
-                } else if (itens.length > 0 && (clienteSelect.value && garcomSelect.value)) { // Se há itens e cliente/garçom selecionados, pergunta para salvar
+                } else if (itens.length > 0 && (clienteSelect.value && garcomSelect.value)) {
                     if (confirm('Deseja salvar esta comanda como "Aberta" antes de sair?')) {
-                        if (saveComanda('Aberta')) { // Salva com status 'Aberta'
+                        if (saveComanda('Aberta')) {
                             alert('Comanda salva como "Aberta".');
                         }
                     }
-                    window.location.href = 'index.html'; // Volta para o index após a pergunta
+                    window.location.href = 'index.html';
                 } else {
-                    // Se não há itens, ou cliente/garçom não selecionados, apenas volta sem perguntar
                     window.location.href = 'index.html';
                 }
             });
