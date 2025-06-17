@@ -1,311 +1,518 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <title>EasyComanda - Caixa</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    <meta charset="UTF-8" />
+    <title>EasyComanda - Caixa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-        body {
-            background-color: #121212;
-            color: #e0e0e0;
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1rem;
-        }
-        .app-title {
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: #6f42c1; /* Cor do Caixa */
-            font-size: 2rem;
-            text-align: center;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-        .container-main {
-            background-color: #1f1f1f;
-            border-radius: 16px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            padding: 2rem;
-            width: 100%;
-            max-width: 800px;
-            margin-bottom: 1rem;
-        }
-        .list-group-item {
-            background-color: #2a2a2a;
-            color: #e0e0e0;
-            border: 1px solid #333;
-            margin-bottom: 0.5rem;
-            border-radius: 8px;
-            transition: background-color 0.2s ease, transform 0.2s ease;
-            cursor: pointer;
-        }
-        .list-group-item:hover {
-            background-color: #3a3a3a;
-            transform: translateY(-2px);
-        }
-        .list-group-item.active {
-            background-color: #6f42c1;
-            border-color: #6f42c1;
-            color: #fff;
-        }
-        .list-group-item .badge {
-            font-size: 0.9em;
-            padding: 0.4em 0.7em;
-        }
-        .detail-card {
-            background-color: #2a2a2a;
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 1px solid #333;
-            margin-top: 1.5rem;
-        }
-        .detail-card h5 {
-            color: #6f42c1;
-            margin-bottom: 1rem;
-        }
-        .detail-card .list-group-item {
-            background-color: #333;
-            border-color: #444;
-        }
-        .detail-card .list-group-item span:first-child {
-            font-weight: 600;
-        }
-        .btn-custom {
-            background-color: #6f42c1;
-            border-color: #6f42c1;
-            color: white;
-            transition: background-color 0.2s ease, border-color 0.2s ease;
-        }
-        .btn-custom:hover {
-            background-color: #5a2e9d;
-            border-color: #5a2e9d;
-            color: white;
-        }
-        .btn-back {
-            background-color: #444;
-            border-color: #444;
-            color: white;
-        }
-        .btn-back:hover {
-            background-color: #555;
-            border-color: #555;
-            color: white;
-        }
-    </style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+        }
+        .app-title {
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #0dcaf0; /* Cor para Caixa */
+            font-size: 2.2rem;
+            text-align: center;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        .container-main {
+            background-color: #1f1f1f;
+            border-radius: 16px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            width: 100%;
+            max-width: 700px; /* Aumentado para acomodar mais informações */
+            margin-bottom: 1.5rem;
+        }
+        .card-comanda {
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        .card-comanda:hover {
+            background-color: #333333;
+            transform: translateY(-3px);
+        }
+        .card-comanda.selected {
+            border-color: #0dcaf0;
+            box-shadow: 0 0 10px rgba(13, 202, 240, 0.5);
+            background-color: #3a3a3a;
+        }
+        .card-comanda h5 {
+            color: #f8f9fa;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .card-comanda p {
+            color: #ccc;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        .badge-status {
+            font-size: 0.85em;
+            padding: 0.4em 0.8em;
+            border-radius: 0.5rem;
+            font-weight: 700;
+        }
+        .badge-aberta {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .badge-finalizada {
+            background-color: #0dcaf0;
+            color: #212529;
+        }
+        .badge-paga {
+            background-color: #198754;
+            color: #fff;
+        }
+
+        /* Detalhes da Comanda */
+        #detalhesComandaSection {
+            background-color: #2a2a2a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            display: none; /* Escondido por padrão */
+        }
+        #detalhesComandaSection h4 {
+            color: #0dcaf0;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        #detalhesComandaSection p {
+            margin-bottom: 0.5rem;
+            color: #e0e0e0;
+        }
+        #detalhesComandaSection .list-group-item {
+            background-color: #333333;
+            border: 1px solid #444;
+            color: #e0e0e0;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #detalhesComandaSection .total-detail {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #ffc107;
+            text-align: right;
+            margin-top: 1rem;
+        }
+
+        /* Opções de Pagamento */
+        .payment-options {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #3a3a3a;
+        }
+        .payment-options h5 {
+            color: #e0e0e0;
+            margin-bottom: 1rem;
+        }
+        .payment-method-btn {
+            background-color: #444444;
+            border: 1px solid #555555;
+            color: #e0e0e0;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .payment-method-btn:hover {
+            background-color: #555555;
+            border-color: #666666;
+            color: #fff;
+        }
+        .payment-method-btn.active {
+            background-color: #0dcaf0;
+            border-color: #0dcaf0;
+            color: #212529;
+            box-shadow: 0 0 10px rgba(13, 202, 240, 0.4);
+        }
+
+        /* Entrada de Valor Pago e Troco */
+        #cashPaymentDetails {
+            margin-top: 1rem;
+            background-color: #333333;
+            border-radius: 8px;
+            padding: 1rem;
+            display: none; /* Escondido por padrão */
+        }
+        #cashPaymentDetails label {
+            color: #e0e0e0;
+        }
+        #trocoDisplay {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #198754;
+            margin-top: 0.5rem;
+        }
+
+        /* Botões de Ação Final */
+        .action-buttons {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .action-buttons .btn {
+            font-size: 1.1rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            min-width: 150px;
+        }
+        .btn-confirm-payment {
+            background-color: #198754;
+            border-color: #198754;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.4);
+        }
+        .btn-confirm-payment:hover {
+            background-color: #146c43;
+            border-color: #146c43;
+            box-shadow: 0 6px 20px rgba(20, 108, 67, 0.6);
+        }
+        .btn-cancel-payment {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+        }
+        .btn-cancel-payment:hover {
+            background-color: #565e64;
+            border-color: #565e64;
+            box-shadow: 0 6px 20px rgba(86, 94, 100, 0.6);
+        }
+        .btn-back-main {
+            background-color: #444;
+            border-color: #444;
+            color: white;
+        }
+        .btn-back-main:hover {
+            background-color: #555;
+            border-color: #555;
+            color: white;
+        }
+    </style>
 </head>
 <body>
 
-    <h2 class="app-title">EasyComanda - Caixa</h2>
+    <script>
+        // Validação de login
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        if (!usuarioLogado) {
+            alert('Você precisa estar logado para acessar esta página.');
+            window.location.href = 'login.html';
+        }
+    </script>
 
-    <div class="container-main">
-        <h4 class="mb-3 text-center">Comandas a Pagar / Finalizar</h4>
-        <div id="comandasList" class="list-group mb-4">
-            <p class="text-center text-muted mt-3" id="noComandasMessage">Nenhuma comanda para processar no momento.</p>
-        </div>
+    <h2 class="app-title">EasyComanda - Caixa</h2>
 
-        <div id="comandaDetails" class="detail-card d-none">
-            <h5 class="mb-3">Detalhes da Comanda <span id="detailComandaId"></span></h5>
-            <p><strong>Cliente:</strong> <span id="detailCliente"></span></p>
-            <p><strong>Garçom:</strong> <span id="detailGarcom"></span></p>
-            <p><strong>Data do Pedido:</strong> <span id="detailData"></span></p>
-            <h6>Itens:</h6>
-            <ul id="detailItems" class="list-group mb-3">
-                </ul>
-            <h5 class="text-end">Total: R$ <span id="detailTotal">0.00</span></h5>
-            <p class="text-center text-muted mt-3" id="noDetailItemsMessage" style="display: none;">Nenhum item nesta comanda.</p>
+    <div class="container-main">
+        <h4 class="mb-4 text-center">Comandas a Pagar / Finalizar</h4>
+        <div id="comandasList">
+            <p class="text-center text-muted">Nenhuma comanda encontrada.</p>
+        </div>
+    </div>
 
-            <div class="d-grid gap-2">
-                <button class="btn btn-lg btn-success" id="btnMarcarPaga">Marcar como Paga</button>
-                <button class="btn btn-lg btn-warning text-dark" id="btnFinalizarAqui" style="display: none;">Finalizar Comanda Aqui</button>                 <button class="btn btn-lg btn-secondary" id="btnVoltarLista">Voltar para a Lista</button>
-            </div>
-        </div>
+    <div class="container-main" id="detalhesComandaSection">
+        <h4 id="detalheComandaTitulo">Detalhes da Comanda #ID</h4>
+        <p><strong>Cliente:</strong> <span id="detalheClienteNome"></span></p>
+        <p><strong>Garçom:</strong> <span id="detalheGarcomNome"></span></p>
+        <p><strong>Data do Pedido:</strong> <span id="detalheData"></span></p>
 
-        <div class="d-grid mt-4">
-            <button class="btn btn-back btn-lg" onclick="window.location.href='index.html'">Voltar ao Início</button>
-        </div>
-    </div>
+        <h5 class="mt-4">Itens:</h5>
+        <div id="detalhesItensList" class="list-group">
+            </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
-            if (!usuario || (usuario.perfil !== 'administrador' && usuario.perfil !== 'caixa')) {
-                alert('Você não tem permissão para acessar esta página.');
-                window.location.href = 'login.html';
-                return;
-            }
+        <div class="total-detail">
+            Total: R$ <span id="detalheTotalComanda">0.00</span>
+        </div>
 
-            const comandasList = document.getElementById('comandasList');
-            const noComandasMessage = document.getElementById('noComandasMessage');
-            const comandaDetails = document.getElementById('comandaDetails');
-            const detailComandaId = document.getElementById('detailComandaId');
-            const detailCliente = document.getElementById('detailCliente');
-            const detailGarcom = document.getElementById('detailGarcom');
-            const detailData = document.getElementById('detailData');
-            const detailItems = document.getElementById('detailItems');
-            const noDetailItemsMessage = document.getElementById('noDetailItemsMessage');
-            const detailTotal = document.getElementById('detailTotal');
-            const btnMarcarPaga = document.getElementById('btnMarcarPaga');
-            const btnFinalizarAqui = document.getElementById('btnFinalizarAqui'); // Novo botão
-            const btnVoltarLista = document.getElementById('btnVoltarLista');
+        <div class="payment-options">
+            <h5 class="mb-3">Selecione a Forma de Pagamento:</h5>
+            <div class="d-grid gap-2 d-md-flex justify-content-center mb-3">
+                <button type="button" class="btn btn-outline-info payment-method-btn" data-method="pix">PIX</button>
+                <button type="button" class="btn btn-outline-info payment-method-btn" data-method="debito">Cartão de Débito</button>
+                <button type="button" class="btn btn-outline-info payment-method-btn" data-method="credito">Cartão de Crédito</button>
+                <button type="button" class="btn btn-outline-info payment-method-btn" data-method="dinheiro">Dinheiro</button>
+            </div>
 
-            let currentComanda = null; // Alterado para armazenar o objeto completo da comanda
+            <div id="cashPaymentDetails">
+                <div class="mb-3">
+                    <label for="valorPagoInput" class="form-label">Valor Pago (Dinheiro):</label>
+                    <input type="number" class="form-control" id="valorPagoInput" min="0" step="0.01" placeholder="Ex: 50.00" />
+                </div>
+                <div id="trocoDisplay" class="text-end">Troco: R$ 0.00</div>
+            </div>
+        </div>
 
-            function loadComandas() {
-                const comandas = JSON.parse(localStorage.getItem('comandas')) || [];
-                // ALTERAÇÃO AQUI: Mostrar todas as comandas que não estão pagas
-                const comandasParaProcessar = comandas.filter(c => c.status !== 'Paga');
+        <div class="action-buttons">
+            <button type="button" class="btn btn-confirm-payment" id="btnConfirmarPagamento" disabled>Confirmar Pagamento</button>
+            <button type="button" class="btn btn-cancel-payment" id="btnCancelarDetalhes">Cancelar</button>
+        </div>
+    </div>
 
-                comandasList.innerHTML = ''; // Limpa a lista existente
-                if (comandasParaProcessar.length === 0) {
-                    noComandasMessage.classList.remove('d-none');
-                } else {
-                    noComandasMessage.classList.add('d-none');
-                    comandasParaProcessar.forEach(comanda => {
-                        const listItem = document.createElement('a');
-                        listItem.href = '#';
-                        listItem.classList.add('list-group-item', 'list-group-item-action', 'd-flex', 'justify-content-between', 'align-items-center');
-                        listItem.setAttribute('data-id', comanda.id);
+    <a href="index.html" class="btn btn-back-main w-100 mt-4" role="button" style="max-width: 400px;">Voltar ao Início</a>
 
-                        const totalFormatted = (comanda.total || 0).toFixed(2).replace('.', ','); // Garante que total existe
-                        const statusBadgeClass = comanda.status === 'Finalizada' ? 'bg-primary' : 'bg-warning text-dark';
-                        const statusText = comanda.status === 'Finalizada' ? 'Finalizada' : 'Aberta';
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const comandasListDiv = document.getElementById('comandasList');
+            const detalhesComandaSection = document.getElementById('detalhesComandaSection');
+            const detalheComandaTitulo = document.getElementById('detalheComandaTitulo');
+            const detalheClienteNome = document.getElementById('detalheClienteNome');
+            const detalheGarcomNome = document.getElementById('detalheGarcomNome');
+            const detalheData = document.getElementById('detalheData');
+            const detalhesItensList = document.getElementById('detalhesItensList');
+            const detalheTotalComanda = document.getElementById('detalheTotalComanda');
+            const paymentMethodButtons = document.querySelectorAll('.payment-method-btn');
+            const cashPaymentDetails = document.getElementById('cashPaymentDetails');
+            const valorPagoInput = document.getElementById('valorPagoInput');
+            const trocoDisplay = document.getElementById('trocoDisplay');
+            const btnConfirmarPagamento = document.getElementById('btnConfirmarPagamento');
+            const btnCancelarDetalhes = document.getElementById('btnCancelarDetalhes');
 
-                        listItem.innerHTML = `
-                            <div>
-                                Comanda #${comanda.id} - Cliente: ${comanda.clienteNome || 'N/A'}
-                                <br>
-                                <small class="text-muted">Garçom: ${comanda.garcomNome || 'N/A'} - Data: ${comanda.data || 'N/A'}</small>
-                            </div>
-                            <span class="badge ${statusBadgeClass} rounded-pill">${statusText} R$ ${totalFormatted}</span>
-                        `;
-                        listItem.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            displayComandaDetails(comanda.id);
-                        });
-                        comandasList.appendChild(listItem);
-                    });
-                }
-                comandaDetails.classList.add('d-none'); // Esconde os detalhes ao recarregar a lista
-            }
+            let currentSelectedComanda = null; // Armazena a comanda selecionada
+            let selectedPaymentMethod = null; // Armazena o método de pagamento selecionado
 
-            function displayComandaDetails(id) {
-                const comandas = JSON.parse(localStorage.getItem('comandas')) || [];
-                // Alterado para buscar qualquer comanda que não esteja paga
-                const comanda = comandas.find(c => c.id === id && c.status !== 'Paga');
+            // --- Funções Auxiliares para LocalStorage ---
+            function getItems(key) {
+                try {
+                    const data = localStorage.getItem(key);
+                    return data ? JSON.parse(data) : [];
+                } catch (e) {
+                    console.error(`Erro ao ler ${key} do localStorage:`, e);
+                    return [];
+                }
+            }
 
-                if (comanda) {
-                    currentComanda = comanda; // Armazena o objeto da comanda completo
-                    detailComandaId.textContent = `#${comanda.id}`;
-                    // Usando || 'Não Informado' para garantir que algo seja exibido
-                    detailCliente.textContent = comanda.clienteNome || 'Não Informado';
-                    detailGarcom.textContent = comanda.garcomNome || 'Não Informado';
-                    detailData.textContent = comanda.data || 'Não Informada'; // Adicionado fallback
+            function saveItems(key, data) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(data));
+                } catch (e) {
+                    console.error(`Erro ao salvar ${key} no localStorage:`, e);
+                }
+            }
 
-                    detailTotal.textContent = (comanda.total || 0).toFixed(2).replace('.', ',');
+            // --- Renderização das Comandas ---
+            function renderComandas() {
+                comandasListDiv.innerHTML = '';
+                const comandas = getItems('comandas');
+                const clientes = getItems('clientes');
+                const garcons = getItems('garcons');
 
-                    detailItems.innerHTML = '';
-                    if (comanda.itens && comanda.itens.length > 0) {
-                        noDetailItemsMessage.style.display = 'none';
-                        comanda.itens.forEach(item => {
-                            const listItem = document.createElement('li');
-                            listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
-                            listItem.innerHTML = `
-                                <span>${item.quantidade}x ${item.nome}</span>
-                                <span>R$ ${(item.quantidade * item.preco).toFixed(2).replace('.', ',')}</span>
-                            `;
-                            detailItems.appendChild(listItem);
-                        });
+                const comandasPendentes = comandas.filter(c => c.status === 'Aberta' || c.status === 'Finalizada');
+
+                if (comandasPendentes.length === 0) {
+                    comandasListDiv.innerHTML = '<p class="text-center text-muted">Nenhuma comanda pendente de pagamento.</p>';
+                    return;
+                }
+
+                comandasPendentes.forEach(comanda => {
+                    const cliente = clientes.find(c => c.id === comanda.clienteId);
+                    const garcom = garcons.find(g => g.id === comanda.garcomId);
+
+                    const clienteNome = cliente ? cliente.nome : (comanda.clienteNome || 'Cliente Desconhecido');
+                    const garcomNome = garcom ? garcom.nome : (comanda.garcomNome || 'Garçom Desconhecido');
+
+                    const card = document.createElement('div');
+                    card.classList.add('card-comanda');
+                    card.dataset.comandaId = comanda.id;
+                    card.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5>Comanda #${comanda.id}</h5>
+                            <span class="badge ${comanda.status === 'Aberta' ? 'badge-aberta' : 'badge-finalizada'} badge-status">
+                                ${comanda.status === 'Aberta' ? 'Aberta' : 'Finalizada'} R$ ${comanda.total.toFixed(2).replace('.', ',')}
+                            </span>
+                        </div>
+                        <p>Cliente: ${clienteNome}</p>
+                        <p>Garçom: ${garcomNome}</p>
+                        <p>Data: ${comanda.data}</p>
+                    `;
+                    card.addEventListener('click', () => showComandaDetails(comanda.id));
+                    comandasListDiv.appendChild(card);
+                });
+            }
+
+            // --- Exibir Detalhes da Comanda Selecionada ---
+            function showComandaDetails(comandaId) {
+                const comandas = getItems('comandas');
+                currentSelectedComanda = comandas.find(c => c.id === comandaId);
+
+                if (currentSelectedComanda) {
+                    // Remover seleção de outros cards
+                    document.querySelectorAll('.card-comanda').forEach(card => card.classList.remove('selected'));
+                    // Adicionar seleção ao card clicado
+                    document.querySelector(`.card-comanda[data-comanda-id="${comandaId}"]`).classList.add('selected');
+
+
+                    const clientes = getItems('clientes');
+                    const garcons = getItems('garcons');
+                    
+                    const cliente = clientes.find(c => c.id === currentSelectedComanda.clienteId);
+                    const garcom = garcons.find(g => g.id === currentSelectedComanda.garcomId);
+
+                    detalheComandaTitulo.textContent = `Detalhes da Comanda #${currentSelectedComanda.id}`;
+                    detalheClienteNome.textContent = cliente ? cliente.nome : (currentSelectedComanda.clienteNome || 'Cliente Desconhecido');
+                    detalheGarcomNome.textContent = garcom ? garcom.nome : (currentSelectedComanda.garcomNome || 'Garçom Desconhecido');
+                    detalheData.textContent = currentSelectedComanda.data;
+                    detalheTotalComanda.textContent = currentSelectedComanda.total.toFixed(2).replace('.', ',');
+
+                    renderDetalhesItens(currentSelectedComanda.itens);
+                    
+                    detalhesComandaSection.style.display = 'block'; // Exibe a seção de detalhes
+                    resetPaymentForm(); // Reseta os campos de pagamento
+                }
+            }
+
+            // --- Renderizar Itens Detalhados e Unificar ---
+            function renderDetalhesItens(itensComanda) {
+                detalhesItensList.innerHTML = '';
+                if (!itensComanda || itensComanda.length === 0) {
+                    detalhesItensList.innerHTML = '<p class="text-center text-muted">Nenhum item nesta comanda.</p>';
+                    return;
+                }
+
+                // Unificar itens duplicados (caso haja)
+                const itensUnificados = {};
+                itensComanda.forEach(item => {
+                    if (itensUnificados[item.id]) {
+                        itensUnificados[item.id].quantidade += item.quantidade;
                     } else {
-                        noDetailItemsMessage.style.display = 'block';
+                        itensUnificados[item.id] = { ...item };
                     }
+                });
 
-                    comandasList.classList.add('d-none');
-                    noComandasMessage.classList.add('d-none');
-                    comandaDetails.classList.remove('d-none');
+                for (const itemId in itensUnificados) {
+                    const item = itensUnificados[itemId];
+                    const listItem = document.createElement('div');
+                    listItem.classList.add('list-group-item');
+                    listItem.innerHTML = `
+                        <span>${item.quantidade}x ${item.nome}</span>
+                        <span>R$ ${(item.quantidade * item.preco).toFixed(2).replace('.', ',')}</span>
+                    `;
+                    detalhesItensList.appendChild(listItem);
+                }
+            }
 
-                    // Lógica para mostrar/esconder o botão "Finalizar Comanda Aqui"
-                    if (comanda.status === 'Aberta') {
-                        btnFinalizarAqui.style.display = 'block';
-                        btnMarcarPaga.style.display = 'none'; // Esconde pagar se ainda não finalizada
-                    } else {
-                        btnFinalizarAqui.style.display = 'none';
-                        btnMarcarPaga.style.display = 'block';
-                    }
+            // --- Lógica de Pagamento ---
+            function resetPaymentForm() {
+                paymentMethodButtons.forEach(btn => btn.classList.remove('active'));
+                cashPaymentDetails.style.display = 'none';
+                valorPagoInput.value = '';
+                trocoDisplay.textContent = 'Troco: R$ 0.00';
+                selectedPaymentMethod = null;
+                btnConfirmarPagamento.disabled = true; // Desabilita o botão até selecionar método
+            }
 
-                    // Remove 'active' de todos e adiciona ao clicado
-                    document.querySelectorAll('.list-group-item').forEach(item => {
-                        item.classList.remove('active');
-                    });
-                    document.querySelector(`.list-group-item[data-id="${id}"]`).classList.add('active');
+            paymentMethodButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    paymentMethodButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    selectedPaymentMethod = button.dataset.method;
+                    btnConfirmarPagamento.disabled = false; // Habilita o botão ao selecionar método
 
-                } else {
-                    alert('Comanda não encontrada ou já está paga.');
-                    loadComandas(); // Recarrega a lista caso a comanda não exista mais
-                }
-            }
-
-            btnMarcarPaga.addEventListener('click', () => {
-                if (currentComanda) {
-                    // Se a comanda ainda não está finalizada, alerta
-                    if (currentComanda.status === 'Aberta') {
-                        alert('Esta comanda ainda está aberta. Por favor, finalize-a primeiro.');
-                        return;
-                    }
-
-                    let comandas = JSON.parse(localStorage.getItem('comandas')) || [];
-                    const index = comandas.findIndex(c => c.id === currentComanda.id);
-
-                    if (index !== -1) {
-                        comandas[index].status = 'Paga';
-                        comandas[index].dataPagamento = new Date().toLocaleString();
-                        localStorage.setItem('comandas', JSON.stringify(comandas));
-                        alert(`Comanda #${currentComanda.id} marcada como Paga!`);
-                        loadComandas();
-                        comandaDetails.classList.add('d-none');
-                    }
-                }
-            });
-
-            // NOVO EVENT LISTENER para Finalizar Comanda no Caixa
-            btnFinalizarAqui.addEventListener('click', () => {
-                if (currentComanda && currentComanda.status === 'Aberta') {
-                    if (confirm('Tem certeza que deseja FINALIZAR esta comanda? Ela poderá ser paga em seguida.')) {
-                        let comandas = JSON.parse(localStorage.getItem('comandas')) || [];
-                        const index = comandas.findIndex(c => c.id === currentComanda.id);
-
-                        if (index !== -1) {
-                            comandasList[index].status = 'Finalizada'; // Atualiza o status
-                            // Garante que a data e total estão corretos
-                            comandasList[index].data = comandasList[index].data || new Date().toLocaleString();
-                            comandasList[index].total = comandasList[index].itens.reduce((sum, item) => sum + (item.quantidade * item.preco), 0);
-                            
-                            localStorage.setItem('comandas', JSON.stringify(comandasList));
-                            alert(`Comanda #${currentComanda.id} finalizada com sucesso!`);
-                            loadComandas(); // Recarrega a lista
-                            displayComandaDetails(currentComanda.id); // Re-exibe detalhes (agora como finalizada)
-                        }
+                    if (selectedPaymentMethod === 'dinheiro') {
+                        cashPaymentDetails.style.display = 'block';
+                        valorPagoInput.focus();
+                    } else {
+                        cashPaymentDetails.style.display = 'none';
+                        valorPagoInput.value = '';
+                        trocoDisplay.textContent = 'Troco: R$ 0.00';
                     }
+                });
+            });
+
+            valorPagoInput.addEventListener('input', () => {
+                const total = currentSelectedComanda.total;
+                const valorPago = parseFloat(valorPagoInput.value.replace(',', '.')) || 0;
+                const troco = valorPago - total;
+                trocoDisplay.textContent = `Troco: R$ ${Math.max(0, troco).toFixed(2).replace('.', ',')}`;
+
+                // Habilita/desabilita o botão de confirmar pagamento com base no valor pago
+                if (selectedPaymentMethod === 'dinheiro' && valorPago < total) {
+                    btnConfirmarPagamento.disabled = true;
+                } else if (selectedPaymentMethod) {
+                    btnConfirmarPagamento.disabled = false;
                 }
             });
 
-            btnVoltarLista.addEventListener('click', () => {
-                comandaDetails.classList.add('d-none');
-                comandasList.classList.remove('d-none');
-                loadComandas(); // Garante que a lista esteja atualizada
-            });
 
-            // Carrega as comandas ao iniciar a página
-            loadComandas();
-        });
-    </script>
+            btnConfirmarPagamento.addEventListener('click', () => {
+                if (!currentSelectedComanda) {
+                    alert('Nenhuma comanda selecionada.');
+                    return;
+                }
+                if (!selectedPaymentMethod) {
+                    alert('Selecione uma forma de pagamento.');
+                    return;
+                }
+
+                if (selectedPaymentMethod === 'dinheiro') {
+                    const total = currentSelectedComanda.total;
+                    const valorPago = parseFloat(valorPagoInput.value.replace(',', '.')) || 0;
+                    if (valorPago < total) {
+                        alert('O valor pago é insuficiente para cobrir o total da comanda.');
+                        return;
+                    }
+                }
+
+                // Lógica para marcar a comanda como "Paga"
+                let comandas = getItems('comandas');
+                const comandaIndex = comandas.findIndex(c => c.id === currentSelectedComanda.id);
+
+                if (comandaIndex > -1) {
+                    comandas[comandaIndex].status = 'Paga';
+                    comandas[comandaIndex].metodoPagamento = selectedPaymentMethod;
+                    if (selectedPaymentMethod === 'dinheiro') {
+                         comandas[comandaIndex].valorPago = parseFloat(valorPagoInput.value.replace(',', '.')) || 0;
+                         comandas[comandaIndex].troco = Math.max(0, (comandas[comandaIndex].valorPago - comandas[comandaIndex].total));
+                    }
+                    saveItems('comandas', comandas);
+                    alert(`Comanda #${currentSelectedComanda.id} paga com sucesso via ${selectedPaymentMethod}!`);
+                    
+                    // Esconde os detalhes e renderiza a lista atualizada
+                    detalhesComandaSection.style.display = 'none';
+                    currentSelectedComanda = null;
+                    selectedPaymentMethod = null;
+                    renderComandas();
+                } else {
+                    alert('Erro: Comanda não encontrada para atualização.');
+                }
+            });
+
+            btnCancelarDetalhes.addEventListener('click', () => {
+                detalhesComandaSection.style.display = 'none';
+                document.querySelectorAll('.card-comanda').forEach(card => card.classList.remove('selected'));
+                currentSelectedComanda = null;
+                resetPaymentForm();
+            });
+
+            // --- Inicialização ---
+            renderComandas();
+        });
+    </script>
 </body>
 </html>
