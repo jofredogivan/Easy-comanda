@@ -214,7 +214,7 @@
             // --- Popula Selects ---
             function populateSelects() {
                 const clientes = getItems('clientes');
-                console.log('Clientes carregados:', clientes); // Debug
+                console.log('Clientes carregados:', clientes);
                 clientes.forEach(cliente => {
                     const option = document.createElement('option');
                     option.value = cliente.id; // Correto: o value deve ser o ID do cliente
@@ -223,7 +223,7 @@
                 });
 
                 const garcons = getItems('garcons');
-                console.log('Garçons carregados:', garcons); // Debug
+                console.log('Garçons carregados:', garcons);
                 garcons.forEach(garcom => {
                     const option = document.createElement('option');
                     option.value = garcom.id; // Correto: o value deve ser o ID do garçom
@@ -232,7 +232,7 @@
                 });
 
                 const produtos = getItems('produtos');
-                console.log('Produtos carregados:', produtos); // Debug
+                console.log('Produtos carregados:', produtos);
                 if (produtos.length === 0) {
                     console.warn('Nenhum produto encontrado no localStorage. O seletor de produtos estará vazio.');
                 }
@@ -240,7 +240,7 @@
                     const option = document.createElement('option');
                     option.value = produto.id; // Correto: o value deve ser o ID do produto
                     option.textContent = `${produto.nome} (R$ ${produto.preco.toFixed(2).replace('.', ',')})`;
-                    option.setAttribute('data-preco', produto.preco);
+                    option.setAttribute('data-preco', produto.preco); // Armazena o preço como data-atributo
                     produtoSelect.appendChild(option);
                 });
             }
@@ -270,48 +270,52 @@
             function addItemToComanda() {
                 console.log("--- Tentativa de Adicionar Item ---");
                 
-                const selectedProductId = produtoSelect.value;
-                const quantidade = parseInt(quantidadeInput.value);
+                // PEGAR A OPÇÃO SELECIONADA DIRETAMENTE do <select>
+                const selectedOption = produtoSelect.options[produtoSelect.selectedIndex];
 
-                console.log('1. ID do produto selecionado:', selectedProductId);
-                console.log('2. Quantidade digitada:', quantidade);
-
-                if (!selectedProductId || quantidade <= 0) {
-                    console.log("3. Validação: Selecione produto e quantidade válida.");
-                    alert('Selecione um produto e uma quantidade válida.');
+                // Verificar se alguma opção válida foi selecionada (não a opção "Selecione um produto")
+                if (!selectedOption || selectedOption.value === "") {
+                    console.log("Validação: Nenhuma opção de produto válida selecionada.");
+                    alert('Selecione um produto válido.');
                     return;
                 }
 
-                const produtos = getItems('produtos');
-                console.log('4. Produtos carregados do localStorage:', produtos);
+                const selectedProductId = selectedOption.value; // ID do produto
+                const selectedProductName = selectedOption.textContent.split('(')[0].trim(); // Nome do produto
+                const selectedProductPreco = parseFloat(selectedOption.getAttribute('data-preco')); // Preço do produto
+                
+                const quantidade = parseInt(quantidadeInput.value);
 
-                const produto = produtos.find(p => p.id == selectedProductId);
-                console.log('5. Produto encontrado:', produto);
+                console.log('1. ID do produto selecionado (do option):', selectedProductId);
+                console.log('2. Nome do produto selecionado (do option):', selectedProductName);
+                console.log('3. Preço do produto selecionado (do option):', selectedProductPreco);
+                console.log('4. Quantidade digitada:', quantidade);
 
-                if (produto) {
-                    console.log("6. Produto válido encontrado.");
-                    const existingItemIndex = itens.findIndex(item => item.id == produto.id);
-
-                    if (existingItemIndex > -1) {
-                        console.log("7. Item já existe, atualizando quantidade.");
-                        itens[existingItemIndex].quantidade += quantidade;
-                    } else {
-                        console.log("7. Item novo, adicionando à lista.");
-                        itens.push({
-                            id: produto.id,
-                            nome: produto.nome,
-                            preco: produto.preco,
-                            quantidade: quantidade
-                        });
-                    }
-                    renderItensComanda();
-                    produtoSelect.value = '';
-                    quantidadeInput.value = 1;
-                    console.log("8. Item adicionado/atualizado e renderizado.");
-                } else {
-                    console.error('9. ERRO: Produto não encontrado para o ID:', selectedProductId, '. Verifique o cadastro de produtos.');
-                    alert('O produto selecionado não foi encontrado. Por favor, recarregue a página ou verifique os cadastros.');
+                if (quantidade <= 0 || isNaN(selectedProductPreco)) {
+                    console.log("5. Validação: Quantidade ou preço inválido.");
+                    alert('Selecione uma quantidade válida.');
+                    return;
                 }
+                
+                console.log("6. Produto válido encontrado a partir da seleção.");
+                const existingItemIndex = itens.findIndex(item => item.id == selectedProductId); // Comparar pelo ID
+
+                if (existingItemIndex > -1) {
+                    console.log("7. Item já existe, atualizando quantidade.");
+                    itens[existingItemIndex].quantidade += quantidade;
+                } else {
+                    console.log("7. Item novo, adicionando à lista.");
+                    itens.push({
+                        id: selectedProductId, // Usar o ID da opção
+                        nome: selectedProductName, // Usar o nome da opção
+                        preco: selectedProductPreco, // Usar o preço da opção
+                        quantidade: quantidade
+                    });
+                }
+                renderItensComanda();
+                produtoSelect.value = ''; // Limpa a seleção do produto
+                quantidadeInput.value = 1; // Reseta a quantidade para 1
+                console.log("8. Item adicionado/atualizado e renderizado.");
                 console.log("--- Fim da Tentativa de Adicionar Item ---");
             }
 
