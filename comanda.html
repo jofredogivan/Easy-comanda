@@ -373,29 +373,32 @@
                 // Adicionado: Log para verificar os valores dos selects antes de qualquer processamento
                 console.log("--- Iniciando saveComanda ---");
                 console.log("Valor de clienteSelect.value:", clienteSelect.value);
-                // Opcional: Adicionar verificação para `selectedIndex` antes de acessar `options` para evitar erro se não houver seleção
                 console.log("Texto de clienteSelect.options[clienteSelect.selectedIndex]?.textContent:", clienteSelect.selectedIndex !== -1 ? clienteSelect.options[clienteSelect.selectedIndex].textContent : 'Nenhum cliente selecionado');
                 console.log("Valor de garcomSelect.value:", garcomSelect.value);
                 console.log("Texto de garcomSelect.options[garcomSelect.selectedIndex]?.textContent:", garcomSelect.selectedIndex !== -1 ? garcomSelect.options[garcomSelect.selectedIndex].textContent : 'Nenhum garçom selecionado');
 
 
-                const clienteId = clienteSelect.value;
-                const garcomId = garcomSelect.value;
+                // *** Renomeadas as variáveis para evitar conflitos de escopo/nomes ***
+                const selectedClienteId = clienteSelect.value; 
+                const selectedGarcomId = garcomSelect.value;   
 
-                if (!clienteId || !garcomId || itens.length === 0) {
+                if (!selectedClienteId || !selectedGarcomId || itens.length === 0) {
                     alert('Por favor, preencha o cliente, o garçom e adicione pelo menos um item.');
                     console.error("Validação falhou: Cliente, garçom ou itens ausentes.");
                     return false;
                 }
 
                 const clientes = getItems('clientes');
-                const cliente = clientes.find(c => c.id == clienteId); // Comparação solta `==` para string/number
+                // *** Usando `selectedClienteId` para a busca ***
+                const clienteEncontrado = clientes.find(c => c.id == selectedClienteId); 
+                
                 const garcons = getItems('garcons');
-                const garcom = garcons.find(g => g.id == garcomId); // Comparação solta `==` para string/number
+                // *** Usando `selectedGarcomId` para a busca ***
+                const garcomEncontrado = garcons.find(g => g.id == selectedGarcomId);     
 
                 // Adicionado: Logs para verificar se cliente e garçom foram encontrados
-                console.log("Cliente encontrado (objeto):", cliente);
-                console.log("Garçom encontrado (objeto):", garcom);
+                console.log("Cliente encontrado (objeto):", clienteEncontrado);
+                console.log("Garçom encontrado (objeto):", garcomEncontrado);
 
 
                 // Formatar a data para garantir consistência
@@ -404,17 +407,17 @@
 
                 const comandaData = {
                     id: comandaIdInput.value,
-                    clienteId: clienteId,
-                    clienteNome: cliente ? cliente.nome : 'Cliente Desconhecido (Falha na Busca)', // Pega o nome do objeto cliente
-                    garcomId: garcomId,
-                    garcomNome: garcom ? garcom.nome : 'Garçom Desconhecido (Falha na Busca)',     // Pega o nome do objeto garçom
+                    clienteId: selectedClienteId, // *** ATRIBUINDO O ID CORRETO DO SELECT ***
+                    clienteNome: clienteEncontrado ? clienteEncontrado.nome : 'Cliente Desconhecido (Falha na Busca)', // *** Usando o nome do objeto encontrado ***
+                    garcomId: selectedGarcomId,   // *** ATRIBUINDO O ID CORRETO DO SELECT ***
+                    garcomNome: garcomEncontrado ? garcomEncontrado.nome : 'Garçom Desconhecido (Falha na Busca)',     // *** Usando o nome do objeto encontrado ***
                     itens: itens,
                     total: parseFloat(totalComandaSpan.textContent.replace(',', '.')),
                     data: currentComanda ? currentComanda.data : dataFormatada,
                     status: status 
                 };
 
-                console.log('Comanda a ser salva:', comandaData); // ESTE É O LOG CRÍTICO QUE PRECISO VER!
+                console.log('Comanda a ser salva:', comandaData); // ESTE É O LOG CRÍTICO!
 
                 let comandas = getItems('comandas');
                 const existingIndex = comandas.findIndex(c => c.id === comandaData.id);
