@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>EasyComanda - Cadastro de Produtos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap'); /* Adicionado import da fonte */
+
+        body {
+            background-color: #121212; /* Ajustado para consistência */
+            color: #e0e0e0; /* Ajustado para consistência */
+            font-family: 'Inter', sans-serif; /* Adicionado para consistência */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1.5rem;
+        }
+        .form-container {
+            background-color: #1e1e1e; /* Ajustado para consistência */
+            padding: 1.5rem; /* Ajustado para consistência */
+            border-radius: 16px; /* Ajustado para consistência */
+            box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3); /* Ajustado para consistência */
+            margin-top: 0; /* Removido margin-top, o padding do body já resolve */
+            width: 100%;
+            max-width: 480px; /* Consistência com outras páginas */
+        }
+        label { /* Adicionado para consistência */
+            font-weight: 600;
+            color: #ccc;
+        }
+        .form-control, .form-select {
+            background-color: #2f2f2f; /* Ajustado para consistência */
+            color: #eee; /* Ajustado para consistência */
+            border: 1px solid #444; /* Ajustado para consistência */
+            border-radius: 12px; /* Consistência */
+            transition: border-color 0.3s ease; /* Adicionado para consistência */
+        }
+        .form-control::placeholder {
+            color: #bbb;
+        }
+        .form-control:focus { /* Consistência no foco */
+            border-color: #0d6efd; /* Ajustado para o azul principal */
+            box-shadow: 0 0 8px #0d6efd88; /* Ajustado para o azul principal */
+            background-color: #3b3b3b; /* Ajustado para consistência */
+            color: #fff;
+            outline: none;
+        }
+        h3 {
+            text-align: center;
+            color: #0d6efd; /* Ajustado para o azul principal */
+            margin-bottom: 1.5rem; /* Ajustado para consistência */
+            font-weight: 700; /* Adicionado para consistência */
+            /* Adicionado prefixos para user-select */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        h5 { /* Adicionado para consistência */
+            margin-bottom: 1.5rem;
+        }
+        .btn {
+            border-radius: 50px;
+            font-weight: 600; /* Ajustado para consistência */
+            padding: 0.6rem 0; /* Ajustado para consistência */
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4); /* Ajustado para consistência */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Adicionado para consistência */
+        }
+        .btn-success {
+            background-color: #198754; /* Ajustado para consistência */
+            border: none;
+        }
+        .btn-success:hover, .btn-success:focus {
+            background-color: #146c43; /* Ajustado para consistência */
+            box-shadow: 0 6px 20px #146c4388; /* Ajustado para consistência */
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+        }
+        .btn-secondary:hover, .btn-secondary:focus {
+            background-color: #565e64; /* Ajustado para consistência */
+            box-shadow: 0 6px 20px #565e6488; /* Ajustado para consistência */
+        }
+        .btn-warning {
+            border: none;
+            background-color: #ffc107;
+            color: #212529; /* Para garantir contraste */
+        }
+        .btn-warning:hover, .btn-warning:focus {
+            background-color: #e0a800;
+            box-shadow: 0 6px 20px #e0a800cc;
+        }
+        ul.list-group { /* Para arredondar a lista inteira */
+            max-height: 280px; /* Adicionado para consistência */
+            overflow-y: auto; /* Adicionado para consistência */
+            border-radius: 12px; /* Ajustado para consistência */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Adicionado sombra para lista */
+        }
+        .list-group-item {
+            background-color: #2a2a2a; /* Ajustado para consistência */
+            color: #ddd; /* Ajustado para consistência */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: none; /* Removido borda */
+            border-radius: 10px; /* Adicionado para arredondar itens */
+            margin-bottom: 0.5rem; /* Espaçamento entre itens */
+            transition: background-color 0.2s ease; /* Transição para hover */
+            cursor: pointer; /* Para indicar que pode ser clicável para edição */
+        }
+        .list-group-item.text-center.text-muted { /* Estilo para "Nenhum produto cadastrado." */
+            background-color: #2a2a2a;
+            color: #bbb !important; /* Mais claro para visibilidade */
+            border-radius: 10px;
+        }
+        .list-group-item:hover {
+            background-color: #0d6efd22; /* Um hover suave, usando o azul principal */
+        }
+        .btn-sm { /* Ajuste para botões pequenos */
+            padding: 0.25rem 0.6rem;
+            font-size: 0.85rem;
+            border-radius: 12px;
+        }
+        .btn-danger { /* Estilo para o botão de exclusão */
+            background-color: #dc3545;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-danger:hover, .btn-danger:focus {
+            background-color: #b02a37;
+            box-shadow: 0 4px 12px #b02a3788;
+        }
+    </style>
+</head>
+<body class="container">
+
+    <script>
+        const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+        if (!usuario) {
+            alert('Você precisa estar logado para acessar esta página.');
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <div class="form-container">
+        <h3>Cadastro de Produtos</h3>
+
+        <div class="mb-3">
+            <label for="nome" class="form-label">Nome do Produto</label>
+            <input type="text" id="nome" class="form-control" placeholder="Digite o nome" autocomplete="off" />
+        </div>
+
+        <div class="mb-3">
+            <label for="preco" class="form-label">Preço (R$)</label>
+            <input type="number" id="preco" class="form-control" placeholder="Digite o preço" min="0" step="0.01" />
+        </div>
+
+        <button id="btnSalvar" class="btn btn-success w-100 mb-2">Salvar</button>
+        <button id="btnLimpar" class="btn btn-secondary w-100">Limpar</button>
+    </div>
+
+    <div class="form-container mt-4">
+        <h5 class="mb-3">Lista de Produtos</h5> <ul id="listaProdutos" class="list-group list-group-flush"></ul>
+    </div>
+
+    <a href="index.html" class="btn btn-warning w-100 mt-3">Voltar</a>
+
+    <script>
+        const inputNome = document.getElementById('nome');
+        const inputPreco = document.getElementById('preco');
+        const btnSalvar = document.getElementById('btnSalvar');
+        const btnLimpar = document.getElementById('btnLimpar');
+        const listaProdutosUL = document.getElementById('listaProdutos'); // Renomeado para evitar conflito
+
+        // Variável para armazenar o índice do produto que está sendo editado
+        let produtoEditandoIndex = -1;
+
+        function limparCampos() {
+            inputNome.value = '';
+            inputPreco.value = '';
+            produtoEditandoIndex = -1; // Reseta o índice de edição
+            btnSalvar.textContent = 'Salvar'; // Volta o texto do botão para "Salvar"
+            inputNome.focus();
+        }
+
+        function carregarProdutos() {
+            listaProdutosUL.innerHTML = '';
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+
+            if (produtos.length === 0) {
+                listaProdutosUL.innerHTML = '<li class="list-group-item text-center text-muted">Nenhum produto cadastrado.</li>';
+                return;
+            }
+
+            produtos.forEach((produto, index) => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                li.innerHTML = `
+                    <span>${produto.nome} - ${produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                    <div>
+                        <button class="btn btn-sm btn-warning me-2 btn-editar" data-index="${index}" title="Editar produto">Editar</button>
+                        <button class="btn btn-sm btn-danger btn-excluir" data-index="${index}" title="Excluir produto">Excluir</button>
+                    </div>
+                `;
+                // Ajuste no toFixed para usar vírgula como separador decimal
+                li.querySelector('.btn-editar').addEventListener('click', (e) => {
+                    e.stopPropagation(); // Impede que o clique no botão ative o clique no LI (se houver)
+                    editarProduto(index);
+                });
+
+                li.querySelector('.btn-excluir').addEventListener('click', (e) => {
+                    e.stopPropagation(); // Impede que o clique no botão ative o clique no LI (se houver)
+                    excluirProduto(index);
+                });
+
+                listaProdutosUL.appendChild(li);
+            });
+        }
+
+        function salvarProduto() {
+            const nome = inputNome.value.trim();
+            const preco = parseFloat(inputPreco.value);
+
+            if (!nome || isNaN(preco) || preco < 0) {
+                alert('Por favor, preencha o nome e um preço válido para o produto.');
+                return;
+            }
+
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            const nomeProdutoNormalizado = nome.toLowerCase(); // Para comparação sem case-sensitive
+
+            if (produtoEditandoIndex !== -1) {
+                // Modo de edição
+                // Verifica se o nome mudou e se o novo nome já existe em outro produto
+                const produtoComMesmoNome = produtos.findIndex((p, i) =>
+                    i !== produtoEditandoIndex && p.nome.toLowerCase() === nomeProdutoNormalizado
+                );
+
+                if (produtoComMesmoNome !== -1) {
+                    alert('Já existe outro produto com este nome. Por favor, escolha um nome único.');
+                    return;
+                }
+
+                // Garante que o preço seja salvo como número e não string
+                produtos[produtoEditandoIndex] = { nome, preco: parseFloat(preco) };
+                alert('Produto atualizado com sucesso!');
+            } else {
+                // Modo de novo cadastro
+                const produtoJaExiste = produtos.some(p => p.nome.toLowerCase() === nomeProdutoNormalizado);
+                if (produtoJaExiste) {
+                    alert('Este produto já está cadastrado. Considere editar o produto existente.');
+                    return;
+                }
+                // Garante que o preço seja salvo como número e não string
+                produtos.push({ nome, preco: parseFloat(preco) });
+                alert('Produto salvo com sucesso!');
+            }
+
+            localStorage.setItem('produtos', JSON.stringify(produtos));
+            limparCampos();
+            carregarProdutos();
+        }
+
+        function editarProduto(index) {
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            const produtoParaEditar = produtos[index];
+
+            if (produtoParaEditar) {
+                inputNome.value = produtoParaEditar.nome;
+                inputPreco.value = produtoParaEditar.preco;
+                produtoEditandoIndex = index; // Define o índice do produto que está sendo editado
+                btnSalvar.textContent = 'Atualizar'; // Altera o texto do botão
+                inputNome.focus();
+            }
+        }
+
+        function excluirProduto(index) {
+            const produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            const produtoParaExcluir = produtos[index];
+
+            if (produtoParaExcluir && confirm(`Tem certeza que deseja excluir o produto "${produtoParaExcluir.nome}"?`)) {
+                // Usa filter para criar um novo array sem o item excluído, mais seguro
+                const produtosAtualizados = produtos.filter((_, i) => i !== index);
+                localStorage.setItem('produtos', JSON.stringify(produtosAtualizados));
+                carregarProdutos();
+                limparCampos(); // Limpa os campos caso o produto excluído estivesse em edição
+            }
+        }
+
+        // --- Event Listeners ---
+        btnSalvar.addEventListener('click', salvarProduto);
+        btnLimpar.addEventListener('click', limparCampos);
+
+        // Carrega os produtos ao iniciar a página
+        document.addEventListener('DOMContentLoaded', carregarProdutos); // Carregar na DOMContentLoaded para garantir que o DOM esteja pronto
+
+        // Adiciona o atalho 'Enter' para salvar
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Evita quebra de linha em campos de texto, etc.
+                salvarProduto();
+            }
+        });
+    </script>
+
+</body>
+</html>

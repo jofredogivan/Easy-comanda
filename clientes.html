@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>EasyComanda - Cadastro de Clientes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h3 {
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #0d6efd;
+            /* Melhoria: Adicionado prefixos para user-select */
+            -webkit-user-select: none; /* Para navegadores baseados em WebKit (Safari, Chrome) */
+            -moz-user-select: none;    /* Para navegadores baseados em Gecko (Firefox) */
+            -ms-user-select: none;     /* Para Microsoft Edge e Internet Explorer */
+            user-select: none;         /* Propriedade padrão */
+        }
+        .card {
+            background-color: #1e1e1e;
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3);
+            width: 100%;
+            max-width: 480px;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+        }
+        label {
+            font-weight: 600;
+            color: #ccc;
+        }
+        .form-control {
+            background-color: #2f2f2f;
+            border: 1px solid #444;
+            color: #eee;
+            border-radius: 12px;
+            transition: border-color 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 8px #0d6efd88;
+            background-color: #3b3b3b;
+            color: #fff;
+        }
+        .btn {
+            border-radius: 50px;
+            font-weight: 600;
+            padding: 0.6rem 0;
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .btn-success {
+            background-color: #198754;
+            border: none;
+        }
+        .btn-success:hover,
+        .btn-success:focus {
+            background-color: #146c43;
+            box-shadow: 0 6px 20px #146c4388;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+        }
+        .btn-secondary:hover,
+        .btn-secondary:focus {
+            background-color: #565e64;
+            box-shadow: 0 6px 20px #565e6488;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+            border: none;
+        }
+        .btn-warning:hover,
+        .btn-warning:focus {
+            background-color: #e0a800;
+            box-shadow: 0 6px 20px #e0a800cc;
+            color: #212529;
+        }
+        ul.list-group {
+            max-height: 280px;
+            overflow-y: auto;
+            border-radius: 12px;
+        }
+        .list-group-item {
+            background-color: #2a2a2a;
+            color: #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: none;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.2s ease;
+            cursor: pointer; /* Indica que o item é clicável para edição */
+        }
+        .list-group-item:hover {
+            background-color: #0d6efd22;
+        }
+        .btn-danger {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 12px;
+            background-color: #dc3545;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-danger:hover,
+        .btn-danger:focus {
+            background-color: #b02a37;
+            box-shadow: 0 4px 12px #b02a3788;
+        }
+    </style>
+</head>
+<body>
+
+    <script>
+        // Validação de login: redireciona se o usuário não estiver logado
+        const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+        if (!usuario) {
+            alert('Você precisa estar logado para acessar esta página.');
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <h3>Cadastro de Clientes</h3> <div class="card shadow-sm">
+        <div class="mb-3">
+            <label for="nome" class="form-label">Nome</label>
+            <input type="text" id="nome" class="form-control" placeholder="Digite o nome" autocomplete="off" />
+        </div>
+
+        <div class="mb-3">
+            <label for="cpf" class="form-label">CPF</label>
+            <input type="text" id="cpf" class="form-control" placeholder="Digite o CPF" autocomplete="off" maxlength="14" />
+        </div>
+
+        <button id="btnSalvar" class="btn btn-success w-100 mb-2" type="button">Salvar</button>
+        <button id="btnLimpar" class="btn btn-secondary w-100" type="button">Limpar Campos</button>
+    </div>
+
+    <div class="card shadow-sm">
+        <h5 class="mb-3">Lista de Clientes</h5> <ul id="listaClientes" class="list-group list-group-flush"></ul>
+    </div>
+
+    <a href="index.html" class="btn btn-warning w-100 mt-3" role="button">Voltar</a>
+
+    <script>
+        // Referências aos elementos do DOM
+        const inputNome = document.getElementById('nome');
+        const inputCpf = document.getElementById('cpf');
+        const btnSalvar = document.getElementById('btnSalvar');
+        const btnLimpar = document.getElementById('btnLimpar');
+        const listaClientesUL = document.getElementById('listaClientes'); // Renomeado para evitar conflito
+
+        // --- Funções de Validação e Formatação de CPF ---
+
+        // Valida o formato do CPF
+        function validarCPF(cpf) {
+            cpf = String(cpf || '').replace(/[^\d]+/g, ''); // Garante string e remove caracteres não numéricos
+            if (cpf.length !== 11) return false;
+            // Elimina CPFs com todos os dígitos iguais (ex: 111.111.111-11)
+            if (/^(\d)\1{10}$/.test(cpf)) return false;
+
+            let soma = 0, resto;
+            // Validação do primeiro dígito verificador
+            for (let i = 1; i <= 9; i++) soma += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf.substring(9, 10))) return false;
+
+            soma = 0;
+            // Validação do segundo dígito verificador
+            for (let i = 1; i <= 10; i++) soma += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf.substring(10, 11))) return false;
+            return true;
+        }
+
+        // Aplica a máscara de CPF enquanto o usuário digita
+        inputCpf.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, ''); // Remove tudo que não é dígito
+            if (v.length > 11) v = v.slice(0, 11); // Limita a 11 dígitos para o CPF
+
+            // Aplica a máscara: 000.000.000-00
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            e.target.value = v;
+        });
+
+        // --- Funções de CRUD de Clientes ---
+
+        // Carrega e exibe a lista de clientes
+        function carregarClientes() {
+            listaClientesUL.innerHTML = ''; // Limpa a lista antes de recarregar
+            const clientes = JSON.parse(localStorage.getItem('clientes')) || []; // Corrigido aqui: JSON.parse() direto
+
+            if (clientes.length === 0) {
+                listaClientesUL.innerHTML = '<li class="list-group-item text-center">Nenhum cliente cadastrado.</li>';
+                return;
+            }
+
+            clientes.forEach((cliente, index) => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.textContent = `${cliente.nome} - CPF: ${cliente.cpf}`;
+
+                // Adiciona evento para edição: clica no item para preencher os campos
+                li.addEventListener('click', () => {
+                    inputNome.value = cliente.nome;
+                    inputCpf.value = cliente.cpf;
+                    inputNome.focus(); // Foca no campo nome para edição
+                });
+
+                const btnExcluir = document.createElement('button');
+                btnExcluir.className = 'btn btn-danger';
+                btnExcluir.textContent = 'Excluir';
+                btnExcluir.title = 'Excluir cliente';
+
+                // Evento de exclusão
+                btnExcluir.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Impede que o clique no botão ative o clique no LI (edição)
+                    if (confirm(`Tem certeza que deseja excluir ${cliente.nome}?`)) {
+                        // Filtra o cliente a ser removido (mais robusto que splice por índice puro)
+                        const clientesAtualizados = clientes.filter(c => c.cpf !== cliente.cpf);
+                        localStorage.setItem('clientes', JSON.stringify(clientesAtualizados));
+                        carregarClientes(); // Recarrega a lista
+                        limparCampos(); // Limpa os campos de entrada caso o cliente excluído estivesse sendo editado
+                    }
+                });
+
+                li.appendChild(btnExcluir);
+                listaClientesUL.appendChild(li);
+            });
+        }
+
+        // Limpa os campos de input
+        function limparCampos() {
+            inputNome.value = '';
+            inputCpf.value = '';
+            inputNome.focus();
+        }
+
+        // Salva ou atualiza um cliente
+        function salvarCliente() {
+            const nome = inputNome.value.trim();
+            const cpf = inputCpf.value.trim(); // CPF já está formatado pela função 'input'
+
+            if (!nome || !cpf) {
+                alert('Por favor, preencha o Nome e o CPF do cliente.');
+                return;
+            }
+
+            if (!validarCPF(cpf)) {
+                alert('O CPF inserido é inválido. Por favor, verifique.');
+                inputCpf.focus();
+                return;
+            }
+
+            // ATENÇÃO: AQUI ESTÁ A CHAVE. PEGAR E SALVAR O JSON DE FORMA CORRETA.
+            let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+            const cpfLimpo = cpf.replace(/\D/g, ''); // CPF limpo para comparação
+
+            // Verifica se o CPF já existe para atualização
+            const clienteExistenteIndex = clientes.findIndex(c => String(c.cpf || '').replace(/\D/g, '') === cpfLimpo);
+
+            if (clienteExistenteIndex !== -1) {
+                // Cliente existe, verifica se o nome mudou
+                if (clientes[clienteExistenteIndex].nome === nome) {
+                    alert('Este cliente com este CPF e nome já está cadastrado.');
+                    return;
+                }
+                // Atualiza o nome do cliente existente
+                clientes[clienteExistenteIndex].nome = nome;
+                alert('Cliente atualizado com sucesso!');
+            } else {
+                // Cliente não existe, adiciona um novo
+                clientes.push({ nome, cpf });
+                alert('Cliente salvo com sucesso!');
+            }
+
+            // SALVANDO NO LOCAL STORAGE COM JSON.stringify()
+            localStorage.setItem('clientes', JSON.stringify(clientes));
+            limparCampos();
+            carregarClientes();
+        }
+
+        // --- Event Listeners ---
+
+        btnSalvar.addEventListener('click', salvarCliente);
+        btnLimpar.addEventListener('click', limparCampos);
+
+        // Carrega os clientes ao iniciar a página
+        document.addEventListener('DOMContentLoaded', carregarClientes); // Carregar na DOMContentLoaded
+
+        // Adiciona o atalho 'Enter' para salvar (com validações)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                salvarCliente();
+            }
+        });
+    </script>
+
+</body>
+</html>

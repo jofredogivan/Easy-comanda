@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>EasyComanda - Comanda</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+        }
+        .app-title {
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #ffc107; /* Cor da Comanda */
+            font-size: 2rem;
+            text-align: center;
+        }
+        .container-main {
+            background-color: #1f1f1f;
+            border-radius: 16px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            color: #e0e0e0;
+        }
+        .form-control, .form-select {
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: #e0e0e0;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+            border-color: #ffc107;
+            box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
+        }
+        .btn-custom {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            color: #212529;
+            font-weight: 600;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .btn-custom:hover {
+            background-color: #e0a800;
+            border-color: #e0a800;
+            color: #212529;
+        }
+        .btn-add-item {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .btn-add-item:hover {
+            background-color: #0b5ed7;
+            border-color: #0b5ed7;
+        }
+        .btn-danger-item {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-danger-item:hover {
+            background-color: #b02a37;
+            border-color: #b02a37;
+        }
+        .item-list-group-item {
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: #e0e0e0;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .total-section {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffc107;
+            text-align: right;
+            margin-top: 1.5rem;
+        }
+        .btn-back {
+            background-color: #444;
+            border-color: #444;
+            color: white;
+        }
+        .btn-back:hover {
+            background-color: #555;
+            border-color: #555;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 class="app-title" id="comandaTitle">Nova Comanda</h2>
+
+    <div class="container-main">
+        <form id="comandaForm">
+            <input type="hidden" id="comandaId" value="" />
+            <input type="hidden" id="comandaStatus" value="Aberta" />
+
+            <div class="mb-3">
+                <label for="clienteSelect" class="form-label">Cliente:</label>
+                <select class="form-select" id="clienteSelect" required>
+                    <option value="">Selecione um cliente</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="garcomSelect" class="form-label">Garçom:</label>
+                <select class="form-select" id="garcomSelect" required>
+                    <option value="">Selecione um garçom</option>
+                </select>
+            </div>
+
+            <hr class="border-secondary my-4">
+
+            <h4>Adicionar Item</h4>
+            <div class="row g-3 align-items-end mb-4">
+                <div class="col-md-6">
+                    <label for="produtoSelect" class="form-label">Produto:</label>
+                    <select class="form-select" id="produtoSelect">
+                        <option value="">Selecione um produto</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="quantidadeInput" class="form-label">Quantidade:</label>
+                    <input type="number" class="form-control" id="quantidadeInput" value="1" min="1" />
+                </div>
+                <div class="col-md-3 d-grid">
+                    <button type="button" class="btn btn-primary btn-add-item" id="btnAdicionarItem">Adicionar</button>
+                </div>
+            </div>
+
+            <h4>Itens da Comanda</h4>
+            <div id="itensComandaList" class="list-group mb-3">
+                <p class="text-center text-muted mt-3" id="noItemsMessage">Nenhum item adicionado à comanda.</p>
+            </div>
+
+            <div class="total-section">
+                Total: R$ <span id="totalComanda">0.00</span>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="button" class="btn btn-lg btn-custom" id="btnFinalizarComanda">Finalizar Comanda</button>
+                <button type="button" class="btn btn-lg btn-secondary" id="btnVoltar">Voltar</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+            if (!usuarioLogado) {
+                alert('Você precisa estar logado para acessar esta página.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const comandaForm = document.getElementById('comandaForm');
+            const comandaIdInput = document.getElementById('comandaId');
+            const comandaStatusInput = document.getElementById('comandaStatus');
+            const comandaTitle = document.getElementById('comandaTitle');
+            const clienteSelect = document.getElementById('clienteSelect');
+            const garcomSelect = document.getElementById('garcomSelect');
+            const produtoSelect = document.getElementById('produtoSelect');
+            const quantidadeInput = document.getElementById('quantidadeInput');
+            const btnAdicionarItem = document.getElementById('btnAdicionarItem');
+            const itensComandaList = document.getElementById('itensComandaList');
+            const noItemsMessage = document.getElementById('noItemsMessage');
+            const totalComandaSpan = document.getElementById('totalComanda');
+            const btnFinalizarComanda = document.getElementById('btnFinalizarComanda');
+            const btnVoltar = document.getElementById('btnVoltar');
+
+            let currentComanda = null;
+            let itens = [];
+
+            // --- Funções Auxiliares para LocalStorage ---
+            function getItems(key) {
+                return JSON.parse(localStorage.getItem(key)) || [];
+            }
+
+            function saveItems(key, data) {
+                localStorage.setItem(key, JSON.stringify(data));
+            }
+
+            // --- Popula Selects ---
+            function populateSelects() {
+                const clientes = getItems('clientes');
+                console.log('Clientes carregados:', clientes); // Debug
+                clientes.forEach(cliente => {
+                    const option = document.createElement('option');
+                    option.value = cliente.id;
+                    option.textContent = cliente.nome;
+                    clienteSelect.appendChild(option);
+                });
+
+                const garcons = getItems('garcons'); // Assumindo que você tem uma lista de garçons
+                console.log('Garçons carregados:', garcons); // Debug
+                garcons.forEach(garcom => {
+                    const option = document.createElement('option');
+                    option.value = garcom.id;
+                    option.textContent = garcom.nome;
+                    garcomSelect.appendChild(option);
+                });
+
+                const produtos = getItems('produtos');
+                console.log('Produtos carregados:', produtos); // Debug IMPORTANTE
+                if (produtos.length === 0) {
+                    console.warn('Nenhum produto encontrado no localStorage. O seletor de produtos estará vazio.');
+                }
+                produtos.forEach(produto => {
+                    const option = document.createElement('option');
+                    option.value = produto.id;
+                    option.textContent = `${produto.nome} (R$ ${produto.preco.toFixed(2).replace('.', ',')})`;
+                    option.setAttribute('data-preco', produto.preco);
+                    produtoSelect.appendChild(option);
+                });
+            }
+
+            // --- Lógica de Itens da Comanda ---
+            function renderItensComanda() {
+                itensComandaList.innerHTML = '';
+                if (itens.length === 0) {
+                    noItemsMessage.classList.remove('d-none');
+                } else {
+                    noItemsMessage.classList.add('d-none');
+                    itens.forEach((item, index) => {
+                        const listItem = document.createElement('div');
+                        listItem.classList.add('item-list-group-item');
+                        listItem.innerHTML = `
+                            <span>${item.quantidade}x ${item.nome}</span>
+                            <span>R$ ${(item.quantidade * item.preco).toFixed(2).replace('.', ',')}
+                                <button type="button" class="btn btn-sm btn-danger ms-3 btn-danger-item" data-index="${index}">Remover</button>
+                            </span>
+                        `;
+                        itensComandaList.appendChild(listItem);
+                    });
+                }
+                updateTotal();
+            }
+
+            function addItemToComanda() {
+                // --- CONSOLE.LOGS DE DEBUG AQUI ---
+                console.log("--- Tentativa de Adicionar Item ---"); // Indica que a função foi chamada
+                
+                const selectedProductId = produtoSelect.value;
+                const quantidade = parseInt(quantidadeInput.value);
+
+                console.log('1. ID do produto selecionado (produtoSelect.value):', selectedProductId);
+                console.log('2. Quantidade digitada (quantidadeInput.value):', quantidade);
+
+                if (!selectedProductId || quantidade <= 0) {
+                    console.log("3. Condição de validação (selectedProductId vazio ou quantidade <= 0) ativada.");
+                    alert('Selecione um produto e uma quantidade válida.');
+                    return; // A função para aqui se a validação falhar
+                }
+
+                const produtos = getItems('produtos');
+                console.log('4. Produtos carregados do localStorage:', produtos); // Verifique se 'produtos' não está vazio aqui
+
+                const produto = produtos.find(p => p.id == selectedProductId);
+                console.log('5. Produto encontrado na lista:', produto); // Deve ser o objeto do produto se encontrado
+
+                if (produto) {
+                    console.log("6. Produto válido encontrado, prosseguindo para adicionar/atualizar.");
+                    const existingItemIndex = itens.findIndex(item => item.id == produto.id);
+
+                    if (existingItemIndex > -1) {
+                        console.log("7. Item já existe, atualizando quantidade.");
+                        itens[existingItemIndex].quantidade += quantidade;
+                    } else {
+                        console.log("7. Item novo, adicionando à lista.");
+                        itens.push({
+                            id: produto.id,
+                            nome: produto.nome,
+                            preco: produto.preco,
+                            quantidade: quantidade
+                        });
+                    }
+                    renderItensComanda();
+                    produtoSelect.value = '';
+                    quantidadeInput.value = 1;
+                    console.log("8. Item adicionado/atualizado com sucesso e lista renderizada."); // Final da lógica de sucesso
+                } else {
+                    console.error('9. ERRO: Produto não encontrado na lista de produtos para o ID:', selectedProductId);
+                    alert('O produto selecionado não foi encontrado. Por favor, recarregue a página ou verifique os cadastros.');
+                }
+                console.log("--- Fim da Tentativa de Adicionar Item ---"); // Fim da função
+            }
+
+            function removeItemFromComanda(index) {
+                itens.splice(index, 1);
+                renderItensComanda();
+            }
+
+            function updateTotal() {
+                const total = itens.reduce((sum, item) => sum + (item.quantidade * item.preco), 0);
+                totalComandaSpan.textContent = total.toFixed(2).replace('.', ',');
+            }
+
+            // --- Lógica de Carregamento e Salvamento da Comanda ---
+            function generateUniqueId() {
+                // Simples gerador de ID baseado em timestamp e um número aleatório
+                return Date.now().toString() + Math.floor(Math.random() * 1000).toString();
+            }
+
+            function loadComandaForEdit() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const comandaId = urlParams.get('id');
+
+                if (comandaId) {
+                    const comandas = getItems('comandas');
+                    currentComanda = comandas.find(c => c.id == comandaId);
+
+                    if (currentComanda) {
+                        comandaTitle.textContent = `Editando Comanda #${currentComanda.id}`;
+                        comandaIdInput.value = currentComanda.id;
+                        comandaStatusInput.value = currentComanda.status;
+
+                        // Popula campos da comanda
+                        clienteSelect.value = currentComanda.clienteId || '';
+                        garcomSelect.value = currentComanda.garcomId || '';
+                        itens = currentComanda.itens || [];
+                        renderItensComanda();
+
+                        // Desabilita campos se a comanda já estiver finalizada ou paga
+                        if (currentComanda.status === 'Finalizada' || currentComanda.status === 'Paga') {
+                            alert('Esta comanda já foi finalizada ou paga e não pode ser editada.');
+                            comandaForm.querySelectorAll('input, select, button').forEach(el => {
+                                el.disabled = true;
+                            });
+                            btnVoltar.disabled = false; // Mantém o botão de voltar habilitado
+                        }
+                    } else {
+                        alert('Comanda não encontrada. Criando nova comanda.');
+                        comandaIdInput.value = generateUniqueId();
+                    }
+                } else {
+                    comandaIdInput.value = generateUniqueId();
+                }
+            }
+
+            function saveComanda(status) {
+                const clienteId = clienteSelect.value;
+                const garcomId = garcomSelect.value;
+
+                if (!clienteId || !garcomId || itens.length === 0) {
+                    alert('Por favor, preencha o cliente, o garçom e adicione pelo menos um item.');
+                    return false;
+                }
+
+                const clientes = getItems('clientes');
+                const cliente = clientes.find(c => c.id == clienteId);
+                const garcons = getItems('garcons');
+                const garcom = garcons.find(g => g.id == garcomId);
+
+                const comandaData = {
+                    id: comandaIdInput.value,
+                    clienteId: clienteId,
+                    clienteNome: cliente ? cliente.nome : 'Cliente Desconhecido',
+                    garcomId: garcomId,
+                    garcomNome: garcom ? garcom.nome : 'Garçom Desconhecido',
+                    itens: itens,
+                    total: parseFloat(totalComandaSpan.textContent.replace(',', '.')),
+                    data: currentComanda ? currentComanda.data : new Date().toLocaleString(), // Mantém a data original se editando
+                    status: status // 'Aberta', 'Finalizada', 'Paga'
+                };
+
+                let comandas = getItems('comandas');
+                const existingIndex = comandas.findIndex(c => c.id === comandaData.id);
+
+                if (existingIndex > -1) {
+                    comandas[existingIndex] = comandaData;
+                } else {
+                    comandas.push(comandaData);
+                }
+                saveItems('comandas', comandas);
+                return true;
+            }
+
+            // --- Event Listeners ---
+            btnAdicionarItem.addEventListener('click', addItemToComanda);
+            itensComandaList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('btn-danger-item')) {
+                    const index = parseInt(e.target.dataset.index);
+                    removeItemFromComanda(index);
+                }
+            });
+
+            btnFinalizarComanda.addEventListener('click', () => {
+                if (saveComanda('Finalizada')) {
+                    alert('Comanda finalizada e salva com sucesso! Você será redirecionado para o Caixa.');
+                    window.location.href = 'caixa.html'; // Redireciona para o Caixa
+                }
+            });
+
+            btnVoltar.addEventListener('click', () => {
+                // Ao voltar, salva como 'Aberta' se for uma nova comanda ou se estiver sendo editada e ainda não finalizada.
+                // Se já estiver finalizada, apenas volta.
+                if (currentComanda && (currentComanda.status === 'Finalizada' || currentComanda.status === 'Paga')) {
+                     window.location.href = 'index.html';
+                } else if (itens.length > 0) { // Se há itens, assume que é uma comanda em andamento
+                    if (confirm('Deseja salvar esta comanda como "Aberta" antes de sair?')) {
+                        saveComanda('Aberta'); // Salva com status 'Aberta'
+                        alert('Comanda salva como "Aberta".');
+                    }
+                }
+                window.location.href = 'index.html'; // Sempre volta para o index
+            });
+
+
+            // --- Inicialização ---
+            populateSelects();
+            loadComandaForEdit();
+        });
+    </script>
+</body>
+</html>

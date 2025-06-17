@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>EasyComanda - Histórico</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap'); /* Adicionado import da fonte */
+
+        body {
+            background-color: #121212; /* Ajustado para consistência */
+            color: #e0e0e0; /* Ajustado para consistência */
+            font-family: 'Inter', sans-serif; /* Consistência de fonte */
+            display: flex; /* Para centralizar o conteúdo */
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1.5rem; /* Consistência */
+        }
+        .main-container { /* Renomeado de .container-custom */
+            background-color: #1e1e1e; /* Ajustado para consistência */
+            padding: 1.5rem; /* Ajustado para consistência */
+            border-radius: 16px; /* Ajustado para consistência */
+            box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3); /* Ajustado para consistência */
+            margin-top: 0; /* Removido margin-top, o padding do body já resolve */
+            width: 100%;
+            max-width: 700px; /* Consistência */
+        }
+        h3 {
+            color: #0d6efd; /* Ajustado para o azul principal */
+            text-align: center;
+            font-weight: 700; /* Consistência */
+            margin-bottom: 1.5rem; /* Consistência */
+            -webkit-user-select: none; /* Adicionado para consistência */
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        .btn { /* Estilo base para todos os botões para consistência */
+            border-radius: 50px;
+            font-weight: 600; /* Consistência */
+            padding: 0.6rem 1.2rem; /* Consistência */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Sombra padrão */
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+        .btn-danger:hover, .btn-danger:focus { /* Adicionado foco */
+            background-color: #bb2d3b;
+            box-shadow: 0 6px 18px rgba(220, 53, 69, 0.5); /* Ajustado para consistência */
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+        }
+        .btn-secondary:hover, .btn-secondary:focus { /* Adicionado foco */
+            background-color: #5c636a;
+            box-shadow: 0 6px 18px rgba(108, 117, 125, 0.5); /* Ajustado para consistência */
+        }
+        .card {
+            background-color: #2a2a2a; /* Ajustado para consistência com itens de lista */
+            border: none;
+            border-radius: 12px; /* Ajustado para consistência */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Sombra padrão para cards */
+            padding: 1rem; /* Ajustado padding interno do card */
+        }
+        .card-title {
+            color: #0d6efd; /* Ajustado para o azul principal */
+            font-weight: 700; /* Mais forte para o título */
+            font-size: 1.35rem; /* Tamanho ligeiramente maior */
+            margin-bottom: 0.5rem; /* Espaço abaixo do título */
+        }
+        .card-subtitle { /* Estilo para os subtítulos */
+            color: #bbb !important; /* Mais claro para visibilidade */
+            font-size: 0.9em;
+            margin-bottom: 0.25rem;
+        }
+        .list-group-item {
+            background-color: #3a3a3a; /* Ajustado para consistência */
+            color: #f1f1f1;
+            border: none;
+            margin-bottom: 0.3rem; /* Menor espaço entre itens */
+            border-radius: 8px; /* Menor arredondamento para itens */
+            padding: 0.6rem 1rem; /* Ajustado padding */
+        }
+        .list-group-item:last-child {
+            margin-bottom: 0; /* Remove margem do último item */
+        }
+        .text-muted {
+            color: #bbb !important;
+        }
+        .total-comanda {
+            color: #0d6efd; /* Ajustado para o azul principal */
+            font-weight: 700;
+            font-size: 1.25em; /* Tamanho maior para o total */
+            margin-top: 1rem; /* Espaço acima do total */
+        }
+        .alert-info { /* Estilo para a mensagem de nenhuma comanda */
+            background-color: #2a2a2a; /* Cor de fundo escura */
+            color: #88bbff; /* Cor do texto azul claro */
+            border: 1px solid #0d6efd; /* Borda azul principal */
+            border-radius: 12px;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body class="container py-3">
+
+    <script>
+        // Verificação de acesso: Garante que apenas usuários logados acessem esta página
+        const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+        if (!usuario) {
+            alert('Você precisa estar logado para acessar esta página.');
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <div class="main-container"> <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">📋 Histórico de Comandas</h3>
+            <button id="btnLogout" class="btn btn-danger btn-sm">Logout</button>
+        </div>
+
+        <a href="index.html" class="btn btn-secondary btn-sm mb-3 w-100">⬅️ Voltar</a>
+
+        <div id="listaComandas"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => { // Adicionado DOMContentLoaded
+            document.getElementById('btnLogout').addEventListener('click', () => {
+                localStorage.removeItem('usuarioLogado');
+                window.location.href = 'login.html';
+            });
+
+            const listaComandasDiv = document.getElementById('listaComandas');
+            const comandas = JSON.parse(localStorage.getItem('comandas')) || [];
+
+            if (comandas.length === 0) {
+                listaComandasDiv.innerHTML = '<p class="alert alert-info text-center">Nenhuma comanda finalizada encontrada.</p>';
+            } else {
+                // Invertemos a ordem para mostrar as comandas mais recentes primeiro
+                comandas.slice().reverse().forEach((comanda) => { // Removido idx, não é usado
+                    const card = document.createElement('div');
+                    card.className = 'card mb-3 shadow-sm'; // Removido p-3 aqui, adicionado no CSS
+
+                    const titulo = document.createElement('h5');
+                    titulo.className = 'card-title';
+                    titulo.innerHTML = `Comanda de ${comanda.clienteNome || 'Cliente Não Informado'}`;
+
+                    const subTituloCpf = document.createElement('p'); // Separado para maior controle
+                    subTituloCpf.className = 'card-subtitle text-muted small';
+                    subTituloCpf.innerHTML = `CPF: ${comanda.clienteCpf || 'Não Informado'}`;
+                    
+                    const subTituloGarcomData = document.createElement('p'); // Separado para maior controle
+                    subTituloGarcomData.className = 'card-subtitle text-muted';
+                    const dataFormatada = new Date(comanda.data).toLocaleString('pt-BR');
+                    subTituloGarcomData.textContent = `Finalizada em: ${dataFormatada} por ${comanda.garcomNome || 'Garçom Desconhecido'}`;
+
+                    const listaItens = document.createElement('ul');
+                    listaItens.className = 'list-group mb-2';
+                    comanda.itens.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                        // Usa toLocaleString para formatação de moeda correta
+                        const precoTotalItem = (item.preco * item.quantidade).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                        li.innerHTML = `<span>${item.nome} (x${item.quantidade})</span> <strong>${precoTotalItem}</strong>`;
+                        listaItens.appendChild(li);
+                    });
+
+                    // Usa toLocaleString para formatação de moeda correta
+                    const totalEl = document.createElement('h6');
+                    totalEl.className = 'text-end mt-2 total-comanda';
+                    totalEl.innerHTML = `Total da Comanda: ${comanda.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+
+                    card.appendChild(titulo);
+                    card.appendChild(subTituloCpf);
+                    card.appendChild(subTituloGarcomData);
+                    card.appendChild(listaItens);
+                    card.appendChild(totalEl);
+
+                    listaComandasDiv.appendChild(card);
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
