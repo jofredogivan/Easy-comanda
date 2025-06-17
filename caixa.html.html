@@ -35,7 +35,7 @@
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
             padding: 2rem;
             width: 100%;
-            max-width: 700px; /* Aumentado para acomodar mais informações */
+            max-width: 700px;
             margin-bottom: 1.5rem;
         }
         .card-comanda {
@@ -214,6 +214,30 @@
             border-color: #555;
             color: white;
         }
+        /* Estilo para o campo de filtro */
+        #clienteFilter {
+            background-color: #2f2f2f;
+            border: 1px solid #444;
+            color: #eee;
+            border-radius: 12px;
+            transition: border-color 0.3s ease;
+        }
+        #clienteFilter:focus {
+            border-color: #0dcaf0;
+            box-shadow: 0 0 8px #0dcaf088;
+            background-color: #3b3b3b;
+            color: #fff;
+        }
+        #totalConsolidadoDisplay {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffc107;
+            text-align: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #333;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -231,7 +255,19 @@
 
     <div class="container-main">
         <h4 class="mb-4 text-center">Comandas a Pagar / Finalizar</h4>
-        <div id="comandasList">
+
+        <div class="mb-3">
+            <label for="clienteFilter" class="form-label">Filtrar por Cliente:</label>
+            <select id="clienteFilter" class="form-select">
+                <option value="">Mostrar Todas as Comandas</option>
+                </select>
+        </div>
+
+        <div id="totalConsolidadoDisplay" style="display: none;">
+            Total Pendente para o Cliente: R$ <span id="valorTotalConsolidado">0.00</span>
+        </div>
+
+        <div id="comandasList" class="mt-4">
             <p class="text-center text-muted">Nenhuma comanda encontrada.</p>
         </div>
     </div>
@@ -247,7 +283,7 @@
             </div>
 
         <div class="total-detail">
-            Total: R$ <span id="detalheTotalComanda">0.00</span>
+            Total da Comanda: R$ <span id="detalheTotalComanda">0.00</span>
         </div>
 
         <div class="payment-options">
@@ -293,9 +329,13 @@
             const trocoDisplay = document.getElementById('trocoDisplay');
             const btnConfirmarPagamento = document.getElementById('btnConfirmarPagamento');
             const btnCancelarDetalhes = document.getElementById('btnCancelarDetalhes');
+            const clienteFilter = document.getElementById('clienteFilter'); // Novo elemento
+            const totalConsolidadoDisplay = document.getElementById('totalConsolidadoDisplay'); // Novo elemento
+            const valorTotalConsolidado = document.getElementById('valorTotalConsolidado'); // Novo elemento
 
-            let currentSelectedComanda = null; // Armazena a comanda selecionada
-            let selectedPaymentMethod = null; // Armazena o método de pagamento selecionado
+
+            let currentSelectedComanda = null;
+            let selectedPaymentMethod = null;
 
             // --- Funções Auxiliares para LocalStorage ---
             function getItems(key) {
@@ -316,6 +356,18 @@
                 }
             }
 
+            // --- Preencher filtro de clientes ---
+            function populateClienteFilter() {
+                const clientes = getItems('clientes');
+                clienteFilter.innerHTML = '<option value="">Mostrar Todas as Comandas</option>';
+                clientes.forEach(cliente => {
+                    const option = document.createElement('option');
+                    option.value = cliente.id;
+                    option.textContent = cliente.nome;
+                    clienteFilter.appendChild(option);
+                });
+            }
+
             // --- Renderização das Comandas ---
             function renderComandas() {
                 comandasListDiv.innerHTML = '';
@@ -323,14 +375,32 @@
                 const clientes = getItems('clientes');
                 const garcons = getItems('garcons');
 
-                const comandasPendentes = comandas.filter(c => c.status === 'Aberta' || c.status === 'Finalizada');
+                const clienteIdFiltrado = clienteFilter.value;
+                let totalConsolidado = 0;
+                let comandasExibidas = [];
 
-                if (comandasPendentes.length === 0) {
-                    comandasListDiv.innerHTML = '<p class="text-center text-muted">Nenhuma comanda pendente de pagamento.</p>';
+                if (clienteIdFiltrado) {
+                    // Filtrar comandas pelo cliente selecionado
+                    comandasExibidas = comandas.filter(c => 
+                        (c.status === 'Aberta' || c.status === 'Finalizada') && 
+                        c.clienteId === clienteIdFiltrado
+                    );
+                    // Calcular total consolidado
+                    totalConsolidado = comandasExibidas.reduce((sum, comanda) => sum + comanda.total, 0);
+                    valorTotalConsolidado.textContent = totalConsolidado.toFixed(2).replace('.', ',');
+                    totalConsolidadoDisplay.style.display = 'block';
+                } else {
+                    // Mostrar todas as comandas pendentes
+                    comandasExibidas = comandas.filter(c => c.status === 'Aberta' || c.status === 'Finalizada');
+                    totalConsolidadoDisplay.style.display = 'none'; // Esconde o total consolidado se não houver filtro
+                }
+
+                if (comandasExibidas.length === 0) {
+                    comandasListDiv.innerHTML = '<p class="text-center text-muted">Nenhuma comanda pendente de pagamento encontrada.</p>';
                     return;
                 }
 
-                comandasPendentes.forEach(comanda => {
+                comandasExibidas.forEach(comanda => {
                     const cliente = clientes.find(c => c.id === comanda.clienteId);
                     const garcom = garcons.find(g => g.id === comanda.garcomId);
 
@@ -437,6 +507,12 @@
                     if (selectedPaymentMethod === 'dinheiro') {
                         cashPaymentDetails.style.display = 'block';
                         valorPagoInput.focus();
+                        // Força a validação inicial do valor pago para troco
+                        const total = currentSelectedComanda.total;
+                        const valorPago = parseFloat(valorPagoInput.value.replace(',', '.')) || 0;
+                        if (valorPago < total) {
+                            btnConfirmarPagamento.disabled = true;
+                        }
                     } else {
                         cashPaymentDetails.style.display = 'none';
                         valorPagoInput.value = '';
@@ -451,10 +527,9 @@
                 const troco = valorPago - total;
                 trocoDisplay.textContent = `Troco: R$ ${Math.max(0, troco).toFixed(2).replace('.', ',')}`;
 
-                // Habilita/desabilita o botão de confirmar pagamento com base no valor pago
                 if (selectedPaymentMethod === 'dinheiro' && valorPago < total) {
                     btnConfirmarPagamento.disabled = true;
-                } else if (selectedPaymentMethod) {
+                } else if (selectedPaymentMethod) { // Garante que se houver um método selecionado, o botão é habilitado
                     btnConfirmarPagamento.disabled = false;
                 }
             });
@@ -497,7 +572,17 @@
                     detalhesComandaSection.style.display = 'none';
                     currentSelectedComanda = null;
                     selectedPaymentMethod = null;
-                    renderComandas();
+                    renderComandas(); // Renderiza com o filtro atual
+                    populateClienteFilter(); // Repopula o filtro caso alguma comanda tenha sido removida
+                    // Se o filtro de cliente estiver ativo, re-renderiza o total consolidado
+                    if (clienteFilter.value) {
+                         const filteredComandas = getItems('comandas').filter(c => 
+                            (c.status === 'Aberta' || c.status === 'Finalizada') && 
+                            c.clienteId === clienteFilter.value
+                        );
+                        const newTotalConsolidado = filteredComandas.reduce((sum, comanda) => sum + comanda.total, 0);
+                        valorTotalConsolidado.textContent = newTotalConsolidado.toFixed(2).replace('.', ',');
+                    }
                 } else {
                     alert('Erro: Comanda não encontrada para atualização.');
                 }
@@ -510,7 +595,15 @@
                 resetPaymentForm();
             });
 
+            // --- Event Listener para o filtro de cliente ---
+            clienteFilter.addEventListener('change', () => {
+                detalhesComandaSection.style.display = 'none'; // Esconde detalhes ao mudar o filtro
+                renderComandas(); // Renderiza as comandas filtradas
+            });
+
+
             // --- Inicialização ---
+            populateClienteFilter();
             renderComandas();
         });
     </script>
