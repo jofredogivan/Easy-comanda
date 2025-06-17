@@ -38,7 +38,8 @@
             max-width: 700px;
             margin-bottom: 1.5rem;
         }
-        .card-comanda {
+        /* Removido .card-comanda para a lista principal, pois vamos focar na seleção do cliente */
+        .card-cliente-summary {
             background-color: #2a2a2a;
             border: 1px solid #3a3a3a;
             border-radius: 12px;
@@ -47,21 +48,21 @@
             cursor: pointer;
             transition: background-color 0.2s ease, transform 0.2s ease;
         }
-        .card-comanda:hover {
+        .card-cliente-summary:hover {
             background-color: #333333;
             transform: translateY(-3px);
         }
-        .card-comanda.selected {
+        .card-cliente-summary.selected {
             border-color: #0dcaf0;
             box-shadow: 0 0 10px rgba(13, 202, 240, 0.5);
             background-color: #3a3a3a;
         }
-        .card-comanda h5 {
+        .card-cliente-summary h5 {
             color: #f8f9fa;
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
-        .card-comanda p {
+        .card-cliente-summary p {
             color: #ccc;
             font-size: 0.9rem;
             margin-bottom: 0.25rem;
@@ -85,24 +86,24 @@
             color: #fff;
         }
 
-        /* Detalhes da Comanda */
-        #detalhesComandaSection {
+        /* Detalhes da Comanda (agora detalhes do Cliente) */
+        #detalhesClienteSection { /* ID alterado */
             background-color: #2a2a2a;
             border-radius: 12px;
             padding: 1.5rem;
             margin-top: 1.5rem;
             display: none; /* Escondido por padrão */
         }
-        #detalhesComandaSection h4 {
+        #detalhesClienteSection h4 {
             color: #0dcaf0;
             margin-bottom: 1rem;
             font-weight: 600;
         }
-        #detalhesComandaSection p {
+        #detalhesClienteSection p {
             margin-bottom: 0.5rem;
             color: #e0e0e0;
         }
-        #detalhesComandaSection .list-group-item {
+        #detalhesClienteSection .list-group-item {
             background-color: #333333;
             border: 1px solid #444;
             color: #e0e0e0;
@@ -113,12 +114,16 @@
             justify-content: space-between;
             align-items: center;
         }
-        #detalhesComandaSection .total-detail {
-            font-size: 1.6rem;
+        #detalhesClienteSection .total-detail {
+            font-size: 1.8rem; /* Aumentado o tamanho para o total */
             font-weight: 700;
             color: #ffc107;
             text-align: right;
             margin-top: 1rem;
+        }
+        #detalhesClienteSection .comanda-item-list { /* Estilo para a lista de comandas individuais */
+            font-size: 0.9rem;
+            color: #bbb;
         }
 
         /* Opções de Pagamento */
@@ -228,15 +233,13 @@
             background-color: #3b3b3b;
             color: #fff;
         }
-        #totalConsolidadoDisplay {
-            font-size: 1.5rem;
+        /* Total Consolidado exibido na lista de clientes */
+        .total-cliente-summary {
+            font-size: 1.1rem;
             font-weight: 700;
             color: #ffc107;
-            text-align: center;
-            margin-top: 1rem;
-            padding: 1rem;
-            background-color: #333;
-            border-radius: 8px;
+            text-align: right;
+            margin-top: 0.5rem;
         }
     </style>
 </head>
@@ -254,36 +257,25 @@
     <h2 class="app-title">EasyComanda - Caixa</h2>
 
     <div class="container-main">
-        <h4 class="mb-4 text-center">Comandas a Pagar / Finalizar</h4>
-
-        <div class="mb-3">
-            <label for="clienteFilter" class="form-label">Filtrar por Cliente:</label>
-            <select id="clienteFilter" class="form-select">
-                <option value="">Mostrar Todas as Comandas</option>
-                </select>
-        </div>
-
-        <div id="totalConsolidadoDisplay" style="display: none;">
-            Total Pendente para o Cliente: R$ <span id="valorTotalConsolidado">0.00</span>
-        </div>
-
-        <div id="comandasList" class="mt-4">
-            <p class="text-center text-muted">Nenhuma comanda encontrada.</p>
+        <h4 class="mb-4 text-center">Clientes com Comandas Pendentes</h4>
+        <div id="clientesComComandasDiv">
+            <p class="text-center text-muted">Nenhum cliente com comanda pendente.</p>
         </div>
     </div>
 
-    <div class="container-main" id="detalhesComandaSection">
-        <h4 id="detalheComandaTitulo">Detalhes da Comanda #ID</h4>
+    <div class="container-main" id="detalhesClienteSection">
+        <h4 id="detalheClienteTitulo">Detalhes do Cliente</h4>
         <p><strong>Cliente:</strong> <span id="detalheClienteNome"></span></p>
-        <p><strong>Garçom:</strong> <span id="detalheGarcomNome"></span></p>
-        <p><strong>Data do Pedido:</strong> <span id="detalheData"></span></p>
-
-        <h5 class="mt-4">Itens:</h5>
+        <h5 class="mt-4">Itens Consolidados de Todas as Comandas:</h5>
         <div id="detalhesItensList" class="list-group">
             </div>
 
+        <h5 class="mt-4">Comandas do Cliente:</h5>
+        <ul id="listaComandasCliente" class="list-group">
+            </ul>
+
         <div class="total-detail">
-            Total da Comanda: R$ <span id="detalheTotalComanda">0.00</span>
+            Total Geral a Pagar: R$ <span id="detalheTotalGeralPagar">0.00</span>
         </div>
 
         <div class="payment-options">
@@ -315,27 +307,25 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const comandasListDiv = document.getElementById('comandasList');
-            const detalhesComandaSection = document.getElementById('detalhesComandaSection');
-            const detalheComandaTitulo = document.getElementById('detalheComandaTitulo');
+            const clientesComComandasDiv = document.getElementById('clientesComComandasDiv'); // Alterado
+            const detalhesClienteSection = document.getElementById('detalhesClienteSection'); // Alterado ID
+            const detalheClienteTitulo = document.getElementById('detalheClienteTitulo'); // Alterado
             const detalheClienteNome = document.getElementById('detalheClienteNome');
-            const detalheGarcomNome = document.getElementById('detalheGarcomNome');
-            const detalheData = document.getElementById('detalheData');
             const detalhesItensList = document.getElementById('detalhesItensList');
-            const detalheTotalComanda = document.getElementById('detalheTotalComanda');
+            const listaComandasCliente = document.getElementById('listaComandasCliente'); // Nova lista
+            const detalheTotalGeralPagar = document.getElementById('detalheTotalGeralPagar'); // Alterado
+
             const paymentMethodButtons = document.querySelectorAll('.payment-method-btn');
             const cashPaymentDetails = document.getElementById('cashPaymentDetails');
             const valorPagoInput = document.getElementById('valorPagoInput');
             const trocoDisplay = document.getElementById('trocoDisplay');
             const btnConfirmarPagamento = document.getElementById('btnConfirmarPagamento');
             const btnCancelarDetalhes = document.getElementById('btnCancelarDetalhes');
-            const clienteFilter = document.getElementById('clienteFilter'); // Novo elemento
-            const totalConsolidadoDisplay = document.getElementById('totalConsolidadoDisplay'); // Novo elemento
-            const valorTotalConsolidado = document.getElementById('valorTotalConsolidado'); // Novo elemento
 
-
-            let currentSelectedComanda = null;
+            let currentSelectedClientId = null; // Armazena o ID do cliente selecionado
+            let currentClienteComandas = []; // Armazena as comandas pendentes do cliente selecionado
             let selectedPaymentMethod = null;
+            let totalGeralDoCliente = 0; // Armazena o total geral de todas as comandas do cliente
 
             // --- Funções Auxiliares para LocalStorage ---
             function getItems(key) {
@@ -356,127 +346,124 @@
                 }
             }
 
-            // --- Preencher filtro de clientes ---
-            function populateClienteFilter() {
-                const clientes = getItems('clientes');
-                clienteFilter.innerHTML = '<option value="">Mostrar Todas as Comandas</option>';
-                clientes.forEach(cliente => {
-                    const option = document.createElement('option');
-                    option.value = cliente.id;
-                    option.textContent = cliente.nome;
-                    clienteFilter.appendChild(option);
-                });
-            }
-
-            // --- Renderização das Comandas ---
-            function renderComandas() {
-                comandasListDiv.innerHTML = '';
+            // --- Renderização da Lista de Clientes com Comandas Pendentes ---
+            function renderClientesComComandas() {
+                clientesComComandasDiv.innerHTML = '';
                 const comandas = getItems('comandas');
                 const clientes = getItems('clientes');
-                const garcons = getItems('garcons');
 
-                const clienteIdFiltrado = clienteFilter.value;
-                let totalConsolidado = 0;
-                let comandasExibidas = [];
+                // Encontrar clientes que têm comandas "Aberta" ou "Finalizada"
+                const clientesComPendencias = {}; // { clienteId: { clienteNome, totalPendencia, [comandaIds] } }
 
-                if (clienteIdFiltrado) {
-                    // Filtrar comandas pelo cliente selecionado
-                    comandasExibidas = comandas.filter(c => 
-                        (c.status === 'Aberta' || c.status === 'Finalizada') && 
-                        c.clienteId === clienteIdFiltrado
-                    );
-                    // Calcular total consolidado
-                    totalConsolidado = comandasExibidas.reduce((sum, comanda) => sum + comanda.total, 0);
-                    valorTotalConsolidado.textContent = totalConsolidado.toFixed(2).replace('.', ',');
-                    totalConsolidadoDisplay.style.display = 'block';
-                } else {
-                    // Mostrar todas as comandas pendentes
-                    comandasExibidas = comandas.filter(c => c.status === 'Aberta' || c.status === 'Finalizada');
-                    totalConsolidadoDisplay.style.display = 'none'; // Esconde o total consolidado se não houver filtro
-                }
-
-                if (comandasExibidas.length === 0) {
-                    comandasListDiv.innerHTML = '<p class="text-center text-muted">Nenhuma comanda pendente de pagamento encontrada.</p>';
-                    return;
-                }
-
-                comandasExibidas.forEach(comanda => {
-                    const cliente = clientes.find(c => c.id === comanda.clienteId);
-                    const garcom = garcons.find(g => g.id === comanda.garcomId);
-
-                    const clienteNome = cliente ? cliente.nome : (comanda.clienteNome || 'Cliente Desconhecido');
-                    const garcomNome = garcom ? garcom.nome : (comanda.garcomNome || 'Garçom Desconhecido');
-
-                    const card = document.createElement('div');
-                    card.classList.add('card-comanda');
-                    card.dataset.comandaId = comanda.id;
-                    card.innerHTML = `
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5>Comanda #${comanda.id}</h5>
-                            <span class="badge ${comanda.status === 'Aberta' ? 'badge-aberta' : 'badge-finalizada'} badge-status">
-                                ${comanda.status === 'Aberta' ? 'Aberta' : 'Finalizada'} R$ ${comanda.total.toFixed(2).replace('.', ',')}
-                            </span>
-                        </div>
-                        <p>Cliente: ${clienteNome}</p>
-                        <p>Garçom: ${garcomNome}</p>
-                        <p>Data: ${comanda.data}</p>
-                    `;
-                    card.addEventListener('click', () => showComandaDetails(comanda.id));
-                    comandasListDiv.appendChild(card);
-                });
-            }
-
-            // --- Exibir Detalhes da Comanda Selecionada ---
-            function showComandaDetails(comandaId) {
-                const comandas = getItems('comandas');
-                currentSelectedComanda = comandas.find(c => c.id === comandaId);
-
-                if (currentSelectedComanda) {
-                    // Remover seleção de outros cards
-                    document.querySelectorAll('.card-comanda').forEach(card => card.classList.remove('selected'));
-                    // Adicionar seleção ao card clicado
-                    document.querySelector(`.card-comanda[data-comanda-id="${comandaId}"]`).classList.add('selected');
-
-
-                    const clientes = getItems('clientes');
-                    const garcons = getItems('garcons');
-                    
-                    const cliente = clientes.find(c => c.id === currentSelectedComanda.clienteId);
-                    const garcom = garcons.find(g => g.id === currentSelectedComanda.garcomId);
-
-                    detalheComandaTitulo.textContent = `Detalhes da Comanda #${currentSelectedComanda.id}`;
-                    detalheClienteNome.textContent = cliente ? cliente.nome : (currentSelectedComanda.clienteNome || 'Cliente Desconhecido');
-                    detalheGarcomNome.textContent = garcom ? garcom.nome : (currentSelectedComanda.garcomNome || 'Garçom Desconhecido');
-                    detalheData.textContent = currentSelectedComanda.data;
-                    detalheTotalComanda.textContent = currentSelectedComanda.total.toFixed(2).replace('.', ',');
-
-                    renderDetalhesItens(currentSelectedComanda.itens);
-                    
-                    detalhesComandaSection.style.display = 'block'; // Exibe a seção de detalhes
-                    resetPaymentForm(); // Reseta os campos de pagamento
-                }
-            }
-
-            // --- Renderizar Itens Detalhados e Unificar ---
-            function renderDetalhesItens(itensComanda) {
-                detalhesItensList.innerHTML = '';
-                if (!itensComanda || itensComanda.length === 0) {
-                    detalhesItensList.innerHTML = '<p class="text-center text-muted">Nenhum item nesta comanda.</p>';
-                    return;
-                }
-
-                // Unificar itens duplicados (caso haja)
-                const itensUnificados = {};
-                itensComanda.forEach(item => {
-                    if (itensUnificados[item.id]) {
-                        itensUnificados[item.id].quantidade += item.quantidade;
-                    } else {
-                        itensUnificados[item.id] = { ...item };
+                comandas.forEach(comanda => {
+                    if (comanda.status === 'Aberta' || comanda.status === 'Finalizada') {
+                        const cliente = clientes.find(c => c.id === comanda.clienteId);
+                        const clienteNome = cliente ? cliente.nome : (comanda.clienteNome || 'Cliente Desconhecido');
+                        
+                        if (!clientesComPendencias[comanda.clienteId]) {
+                            clientesComPendencias[comanda.clienteId] = {
+                                id: comanda.clienteId,
+                                nome: clienteNome,
+                                totalPendencia: 0,
+                                comandasIds: []
+                            };
+                        }
+                        clientesComPendencias[comanda.clienteId].totalPendencia += comanda.total;
+                        clientesComPendencias[comanda.clienteId].comandasIds.push(comanda.id);
                     }
                 });
 
-                for (const itemId in itensUnificados) {
-                    const item = itensUnificados[itemId];
+                const clientesOrdenados = Object.values(clientesComPendencias).sort((a, b) => a.nome.localeCompare(b.nome));
+
+                if (clientesOrdenados.length === 0) {
+                    clientesComComandasDiv.innerHTML = '<p class="text-center text-muted">Nenhum cliente com comanda pendente de pagamento.</p>';
+                    return;
+                }
+
+                clientesOrdenados.forEach(clienteSummary => {
+                    const card = document.createElement('div');
+                    card.classList.add('card-cliente-summary');
+                    card.dataset.clientId = clienteSummary.id;
+                    card.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5>Cliente: ${clienteSummary.nome}</h5>
+                            <span class="badge badge-aberta badge-status">
+                                ${clienteSummary.comandasIds.length} Comanda(s)
+                            </span>
+                        </div>
+                        <p class="total-cliente-summary">Total Pendente: R$ ${clienteSummary.totalPendencia.toFixed(2).replace('.', ',')}</p>
+                    `;
+                    card.addEventListener('click', () => showClienteDetails(clienteSummary.id));
+                    clientesComComandasDiv.appendChild(card);
+                });
+            }
+
+            // --- Exibir Detalhes do Cliente Selecionado e Unificar Comandas ---
+            function showClienteDetails(clientId) {
+                const comandas = getItems('comandas');
+                const clientes = getItems('clientes');
+                
+                currentSelectedClientId = clientId;
+                currentClienteComandas = comandas.filter(c => 
+                    (c.status === 'Aberta' || c.status === 'Finalizada') && 
+                    c.clienteId === clientId
+                );
+
+                if (currentClienteComandas.length === 0) {
+                    alert('Este cliente não possui comandas pendentes.');
+                    renderClientesComComandas(); // Recarrega a lista
+                    return;
+                }
+
+                // Remover seleção de outros cards de cliente
+                document.querySelectorAll('.card-cliente-summary').forEach(card => card.classList.remove('selected'));
+                // Adicionar seleção ao card clicado
+                document.querySelector(`.card-cliente-summary[data-client-id="${clientId}"]`).classList.add('selected');
+
+                const clienteInfo = clientes.find(c => c.id === clientId);
+                const clienteNome = clienteInfo ? clienteInfo.nome : 'Cliente Desconhecido';
+
+                detalheClienteTitulo.textContent = `Detalhes de Pagamento - ${clienteNome}`;
+                detalheClienteNome.textContent = clienteNome;
+
+                // Calcular total geral do cliente
+                totalGeralDoCliente = currentClienteComandas.reduce((sum, comanda) => sum + comanda.total, 0);
+                detalheTotalGeralPagar.textContent = totalGeralDoCliente.toFixed(2).replace('.', ',');
+
+                // Unificar itens de TODAS as comandas pendentes do cliente
+                const itensUnificados = {};
+                listaComandasCliente.innerHTML = ''; // Limpa a lista de IDs das comandas
+
+                currentClienteComandas.forEach(comanda => {
+                    const liComanda = document.createElement('li');
+                    liComanda.classList.add('list-group-item', 'comanda-item-list');
+                    liComanda.textContent = `Comanda #${comanda.id} - Total: R$ ${comanda.total.toFixed(2).replace('.', ',')}`;
+                    listaComandasCliente.appendChild(liComanda);
+
+                    comanda.itens.forEach(item => {
+                        if (itensUnificados[item.id]) {
+                            itensUnificados[item.id].quantidade += item.quantidade;
+                        } else {
+                            itensUnificados[item.id] = { ...item };
+                        }
+                    });
+                });
+                
+                renderDetalhesItens(Object.values(itensUnificados)); // Passa os valores do objeto unificado
+
+                detalhesClienteSection.style.display = 'block'; // Exibe a seção de detalhes
+                resetPaymentForm(); // Reseta os campos de pagamento
+            }
+
+            // --- Renderizar Itens Detalhados (já unificados por showClienteDetails) ---
+            function renderDetalhesItens(itensUnificados) {
+                detalhesItensList.innerHTML = '';
+                if (!itensUnificados || itensUnificados.length === 0) {
+                    detalhesItensList.innerHTML = '<p class="text-center text-muted">Nenhum item em suas comandas.</p>';
+                    return;
+                }
+
+                itensUnificados.forEach(item => {
                     const listItem = document.createElement('div');
                     listItem.classList.add('list-group-item');
                     listItem.innerHTML = `
@@ -484,7 +471,7 @@
                         <span>R$ ${(item.quantidade * item.preco).toFixed(2).replace('.', ',')}</span>
                     `;
                     detalhesItensList.appendChild(listItem);
-                }
+                });
             }
 
             // --- Lógica de Pagamento ---
@@ -508,9 +495,8 @@
                         cashPaymentDetails.style.display = 'block';
                         valorPagoInput.focus();
                         // Força a validação inicial do valor pago para troco
-                        const total = currentSelectedComanda.total;
                         const valorPago = parseFloat(valorPagoInput.value.replace(',', '.')) || 0;
-                        if (valorPago < total) {
+                        if (valorPago < totalGeralDoCliente) {
                             btnConfirmarPagamento.disabled = true;
                         }
                     } else {
@@ -522,12 +508,11 @@
             });
 
             valorPagoInput.addEventListener('input', () => {
-                const total = currentSelectedComanda.total;
                 const valorPago = parseFloat(valorPagoInput.value.replace(',', '.')) || 0;
-                const troco = valorPago - total;
+                const troco = valorPago - totalGeralDoCliente;
                 trocoDisplay.textContent = `Troco: R$ ${Math.max(0, troco).toFixed(2).replace('.', ',')}`;
 
-                if (selectedPaymentMethod === 'dinheiro' && valorPago < total) {
+                if (selectedPaymentMethod === 'dinheiro' && valorPago < totalGeralDoCliente) {
                     btnConfirmarPagamento.disabled = true;
                 } else if (selectedPaymentMethod) { // Garante que se houver um método selecionado, o botão é habilitado
                     btnConfirmarPagamento.disabled = false;
@@ -536,8 +521,8 @@
 
 
             btnConfirmarPagamento.addEventListener('click', () => {
-                if (!currentSelectedComanda) {
-                    alert('Nenhuma comanda selecionada.');
+                if (!currentSelectedClientId || currentClienteComandas.length === 0) {
+                    alert('Nenhum cliente ou comanda pendente selecionada.');
                     return;
                 }
                 if (!selectedPaymentMethod) {
@@ -546,65 +531,68 @@
                 }
 
                 if (selectedPaymentMethod === 'dinheiro') {
-                    const total = currentSelectedComanda.total;
                     const valorPago = parseFloat(valorPagoInput.value.replace(',', '.')) || 0;
-                    if (valorPago < total) {
-                        alert('O valor pago é insuficiente para cobrir o total da comanda.');
+                    if (valorPago < totalGeralDoCliente) {
+                        alert('O valor pago é insuficiente para cobrir o total da(s) comanda(s).');
                         return;
                     }
                 }
 
-                // Lógica para marcar a comanda como "Paga"
+                // Lógica para marcar TODAS as comandas do cliente como "Pagas"
                 let comandas = getItems('comandas');
-                const comandaIndex = comandas.findIndex(c => c.id === currentSelectedComanda.id);
+                let updatedComandasCount = 0;
 
-                if (comandaIndex > -1) {
-                    comandas[comandaIndex].status = 'Paga';
-                    comandas[comandaIndex].metodoPagamento = selectedPaymentMethod;
-                    if (selectedPaymentMethod === 'dinheiro') {
-                         comandas[comandaIndex].valorPago = parseFloat(valorPagoInput.value.replace(',', '.')) || 0;
-                         comandas[comandaIndex].troco = Math.max(0, (comandas[comandaIndex].valorPago - comandas[comandaIndex].total));
+                currentClienteComandas.forEach(comandaPendente => {
+                    const comandaIndex = comandas.findIndex(c => c.id === comandaPendente.id);
+                    if (comandaIndex > -1) {
+                        comandas[comandaIndex].status = 'Paga';
+                        comandas[comandaIndex].metodoPagamento = selectedPaymentMethod;
+                        comandas[comandaIndex].dataPagamento = new Date().toLocaleString('pt-BR'); // Adiciona data de pagamento
+
+                        if (selectedPaymentMethod === 'dinheiro') {
+                            // A lógica de troco e valor pago é para o total, não para cada comanda individualmente.
+                            // Mas podemos registrar o valor pago e o troco no histórico da *primeira* comanda ou em um registro de caixa separado se fosse mais complexo.
+                            // Por simplicidade, registraremos no localStorage uma única vez o valor total pago e troco, se necessário.
+                            // Aqui, vamos apenas marcar que cada comanda foi paga. O total pago e troco são gerenciados na interface.
+                            // Se precisar registrar o valor pago e troco por comanda, precisaria de uma lógica mais avançada de rateio ou de um recibo consolidado.
+                        }
+                        updatedComandasCount++;
                     }
-                    saveItems('comandas', comandas);
-                    alert(`Comanda #${currentSelectedComanda.id} paga com sucesso via ${selectedPaymentMethod}!`);
-                    
-                    // Esconde os detalhes e renderiza a lista atualizada
-                    detalhesComandaSection.style.display = 'none';
-                    currentSelectedComanda = null;
-                    selectedPaymentMethod = null;
-                    renderComandas(); // Renderiza com o filtro atual
-                    populateClienteFilter(); // Repopula o filtro caso alguma comanda tenha sido removida
-                    // Se o filtro de cliente estiver ativo, re-renderiza o total consolidado
-                    if (clienteFilter.value) {
-                         const filteredComandas = getItems('comandas').filter(c => 
-                            (c.status === 'Aberta' || c.status === 'Finalizada') && 
-                            c.clienteId === clienteFilter.value
-                        );
-                        const newTotalConsolidado = filteredComandas.reduce((sum, comanda) => sum + comanda.total, 0);
-                        valorTotalConsolidado.textContent = newTotalConsolidado.toFixed(2).replace('.', ',');
-                    }
-                } else {
-                    alert('Erro: Comanda não encontrada para atualização.');
+                });
+
+                // Se o pagamento for em dinheiro, podemos registrar o valor pago e troco uma única vez, talvez em um novo localstorage para "transacoes_caixa"
+                if (selectedPaymentMethod === 'dinheiro') {
+                    const valorPago = parseFloat(valorPagoInput.value.replace(',', '.')) || 0;
+                    const troco = Math.max(0, (valorPago - totalGeralDoCliente));
+                    // Onde você armazenaria isso para um registro futuro? Poderia ser um array de "historico_pagamentos_consolidados"
+                    console.log(`Pagamento consolidado de R$ ${totalGeralDoCliente.toFixed(2).replace('.', ',')} para o cliente ${detalheClienteNome.textContent} via Dinheiro. Valor pago: R$ ${valorPago.toFixed(2).replace('.', ',')}, Troco: R$ ${troco.toFixed(2).replace('.', ',')}`);
+                    // Para fins de demonstração, não estou salvando este registro consolidado em um local específico ainda,
+                    // mas as comandas individuais já foram marcadas como pagas.
                 }
+
+                saveItems('comandas', comandas);
+                alert(`Todas as comandas pendentes do cliente ${detalheClienteNome.textContent} (Total: R$ ${totalGeralDoCliente.toFixed(2).replace('.', ',')}) foram pagas com sucesso via ${selectedPaymentMethod}!`);
+                
+                // Esconde os detalhes e renderiza a lista atualizada de clientes
+                detalhesClienteSection.style.display = 'none';
+                currentSelectedClientId = null;
+                currentClienteComandas = [];
+                selectedPaymentMethod = null;
+                totalGeralDoCliente = 0;
+                renderClientesComComandas(); // Recarrega a lista de clientes
             });
 
             btnCancelarDetalhes.addEventListener('click', () => {
-                detalhesComandaSection.style.display = 'none';
-                document.querySelectorAll('.card-comanda').forEach(card => card.classList.remove('selected'));
-                currentSelectedComanda = null;
+                detalhesClienteSection.style.display = 'none';
+                document.querySelectorAll('.card-cliente-summary').forEach(card => card.classList.remove('selected'));
+                currentSelectedClientId = null;
+                currentClienteComandas = [];
+                totalGeralDoCliente = 0;
                 resetPaymentForm();
             });
 
-            // --- Event Listener para o filtro de cliente ---
-            clienteFilter.addEventListener('change', () => {
-                detalhesComandaSection.style.display = 'none'; // Esconde detalhes ao mudar o filtro
-                renderComandas(); // Renderiza as comandas filtradas
-            });
-
-
             // --- Inicialização ---
-            populateClienteFilter();
-            renderComandas();
+            renderClientesComComandas();
         });
     </script>
 </body>
