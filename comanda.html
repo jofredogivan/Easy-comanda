@@ -194,11 +194,21 @@
 
             // --- Funções Auxiliares para LocalStorage ---
             function getItems(key) {
-                return JSON.parse(localStorage.getItem(key)) || [];
+                try {
+                    const data = localStorage.getItem(key);
+                    return data ? JSON.parse(data) : [];
+                } catch (e) {
+                    console.error(`Erro ao ler ${key} do localStorage:`, e);
+                    return [];
+                }
             }
 
             function saveItems(key, data) {
-                localStorage.setItem(key, JSON.stringify(data));
+                try {
+                    localStorage.setItem(key, JSON.stringify(data));
+                } catch (e) {
+                    console.error(`Erro ao salvar ${key} no localStorage:`, e);
+                }
             }
 
             // --- Popula Selects ---
@@ -207,28 +217,28 @@
                 console.log('Clientes carregados:', clientes); // Debug
                 clientes.forEach(cliente => {
                     const option = document.createElement('option');
-                    option.value = cliente.id;
+                    option.value = cliente.id; // Correto: o value deve ser o ID do cliente
                     option.textContent = cliente.nome;
                     clienteSelect.appendChild(option);
                 });
 
-                const garcons = getItems('garcons'); // Assumindo que você tem uma lista de garçons
+                const garcons = getItems('garcons');
                 console.log('Garçons carregados:', garcons); // Debug
                 garcons.forEach(garcom => {
                     const option = document.createElement('option');
-                    option.value = garcom.id;
+                    option.value = garcom.id; // Correto: o value deve ser o ID do garçom
                     option.textContent = garcom.nome;
                     garcomSelect.appendChild(option);
                 });
 
                 const produtos = getItems('produtos');
-                console.log('Produtos carregados:', produtos); // Debug IMPORTANTE
+                console.log('Produtos carregados:', produtos); // Debug
                 if (produtos.length === 0) {
                     console.warn('Nenhum produto encontrado no localStorage. O seletor de produtos estará vazio.');
                 }
                 produtos.forEach(produto => {
                     const option = document.createElement('option');
-                    option.value = produto.id;
+                    option.value = produto.id; // Correto: o value deve ser o ID do produto
                     option.textContent = `${produto.nome} (R$ ${produto.preco.toFixed(2).replace('.', ',')})`;
                     option.setAttribute('data-preco', produto.preco);
                     produtoSelect.appendChild(option);
@@ -258,29 +268,28 @@
             }
 
             function addItemToComanda() {
-                // --- CONSOLE.LOGS DE DEBUG AQUI ---
-                console.log("--- Tentativa de Adicionar Item ---"); // Indica que a função foi chamada
+                console.log("--- Tentativa de Adicionar Item ---");
                 
                 const selectedProductId = produtoSelect.value;
                 const quantidade = parseInt(quantidadeInput.value);
 
-                console.log('1. ID do produto selecionado (produtoSelect.value):', selectedProductId);
-                console.log('2. Quantidade digitada (quantidadeInput.value):', quantidade);
+                console.log('1. ID do produto selecionado:', selectedProductId);
+                console.log('2. Quantidade digitada:', quantidade);
 
                 if (!selectedProductId || quantidade <= 0) {
-                    console.log("3. Condição de validação (selectedProductId vazio ou quantidade <= 0) ativada.");
+                    console.log("3. Validação: Selecione produto e quantidade válida.");
                     alert('Selecione um produto e uma quantidade válida.');
-                    return; // A função para aqui se a validação falhar
+                    return;
                 }
 
                 const produtos = getItems('produtos');
-                console.log('4. Produtos carregados do localStorage:', produtos); // Verifique se 'produtos' não está vazio aqui
+                console.log('4. Produtos carregados do localStorage:', produtos);
 
                 const produto = produtos.find(p => p.id == selectedProductId);
-                console.log('5. Produto encontrado na lista:', produto); // Deve ser o objeto do produto se encontrado
+                console.log('5. Produto encontrado:', produto);
 
                 if (produto) {
-                    console.log("6. Produto válido encontrado, prosseguindo para adicionar/atualizar.");
+                    console.log("6. Produto válido encontrado.");
                     const existingItemIndex = itens.findIndex(item => item.id == produto.id);
 
                     if (existingItemIndex > -1) {
@@ -298,12 +307,12 @@
                     renderItensComanda();
                     produtoSelect.value = '';
                     quantidadeInput.value = 1;
-                    console.log("8. Item adicionado/atualizado com sucesso e lista renderizada."); // Final da lógica de sucesso
+                    console.log("8. Item adicionado/atualizado e renderizado.");
                 } else {
-                    console.error('9. ERRO: Produto não encontrado na lista de produtos para o ID:', selectedProductId);
+                    console.error('9. ERRO: Produto não encontrado para o ID:', selectedProductId, '. Verifique o cadastro de produtos.');
                     alert('O produto selecionado não foi encontrado. Por favor, recarregue a página ou verifique os cadastros.');
                 }
-                console.log("--- Fim da Tentativa de Adicionar Item ---"); // Fim da função
+                console.log("--- Fim da Tentativa de Adicionar Item ---");
             }
 
             function removeItemFromComanda(index) {
@@ -318,7 +327,6 @@
 
             // --- Lógica de Carregamento e Salvamento da Comanda ---
             function generateUniqueId() {
-                // Simples gerador de ID baseado em timestamp e um número aleatório
                 return Date.now().toString() + Math.floor(Math.random() * 1000).toString();
             }
 
@@ -336,8 +344,8 @@
                         comandaStatusInput.value = currentComanda.status;
 
                         // Popula campos da comanda
-                        clienteSelect.value = currentComanda.clienteId || '';
-                        garcomSelect.value = currentComanda.garcomId || '';
+                        clienteSelect.value = currentComanda.clienteId || ''; // Usar clienteId
+                        garcomSelect.value = currentComanda.garcomId || '';   // Usar garcomId
                         itens = currentComanda.itens || [];
                         renderItensComanda();
 
@@ -345,9 +353,10 @@
                         if (currentComanda.status === 'Finalizada' || currentComanda.status === 'Paga') {
                             alert('Esta comanda já foi finalizada ou paga e não pode ser editada.');
                             comandaForm.querySelectorAll('input, select, button').forEach(el => {
-                                el.disabled = true;
+                                if (el.id !== 'btnVoltar') { // Mantém o botão de voltar habilitado
+                                    el.disabled = true;
+                                }
                             });
-                            btnVoltar.disabled = false; // Mantém o botão de voltar habilitado
                         }
                     } else {
                         alert('Comanda não encontrada. Criando nova comanda.');
@@ -372,17 +381,23 @@
                 const garcons = getItems('garcons');
                 const garcom = garcons.find(g => g.id == garcomId);
 
+                // Formatar a data para garantir consistência
+                const now = new Date();
+                const dataFormatada = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR');
+
                 const comandaData = {
                     id: comandaIdInput.value,
                     clienteId: clienteId,
-                    clienteNome: cliente ? cliente.nome : 'Cliente Desconhecido',
+                    clienteNome: cliente ? cliente.nome : 'Cliente Desconhecido', // Pega o nome do objeto cliente
                     garcomId: garcomId,
-                    garcomNome: garcom ? garcom.nome : 'Garçom Desconhecido',
+                    garcomNome: garcom ? garcom.nome : 'Garçom Desconhecido',     // Pega o nome do objeto garçom
                     itens: itens,
                     total: parseFloat(totalComandaSpan.textContent.replace(',', '.')),
-                    data: currentComanda ? currentComanda.data : new Date().toLocaleString(), // Mantém a data original se editando
-                    status: status // 'Aberta', 'Finalizada', 'Paga'
+                    data: currentComanda ? currentComanda.data : dataFormatada, // Mantém a data original se editando, ou usa a data atual para nova
+                    status: status 
                 };
+
+                console.log('Comanda a ser salva:', comandaData); // DEBUG: Veja o objeto antes de salvar
 
                 let comandas = getItems('comandas');
                 const existingIndex = comandas.findIndex(c => c.id === comandaData.id);
@@ -408,22 +423,25 @@
             btnFinalizarComanda.addEventListener('click', () => {
                 if (saveComanda('Finalizada')) {
                     alert('Comanda finalizada e salva com sucesso! Você será redirecionado para o Caixa.');
-                    window.location.href = 'caixa.html'; // Redireciona para o Caixa
+                    window.location.href = 'caixa.html';
                 }
             });
 
             btnVoltar.addEventListener('click', () => {
-                // Ao voltar, salva como 'Aberta' se for uma nova comanda ou se estiver sendo editada e ainda não finalizada.
-                // Se já estiver finalizada, apenas volta.
                 if (currentComanda && (currentComanda.status === 'Finalizada' || currentComanda.status === 'Paga')) {
-                     window.location.href = 'index.html';
-                } else if (itens.length > 0) { // Se há itens, assume que é uma comanda em andamento
+                    // Se já estiver finalizada/paga, apenas volta
+                    window.location.href = 'index.html';
+                } else if (itens.length > 0 && (clienteSelect.value && garcomSelect.value)) { // Se há itens e cliente/garçom selecionados, pergunta para salvar
                     if (confirm('Deseja salvar esta comanda como "Aberta" antes de sair?')) {
-                        saveComanda('Aberta'); // Salva com status 'Aberta'
-                        alert('Comanda salva como "Aberta".');
+                        if (saveComanda('Aberta')) { // Salva com status 'Aberta'
+                            alert('Comanda salva como "Aberta".');
+                        }
                     }
+                    window.location.href = 'index.html'; // Volta para o index após a pergunta
+                } else {
+                    // Se não há itens, ou cliente/garçom não selecionados, apenas volta sem perguntar
+                    window.location.href = 'index.html';
                 }
-                window.location.href = 'index.html'; // Sempre volta para o index
             });
 
 
